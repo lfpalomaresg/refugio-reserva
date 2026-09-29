@@ -1,0 +1,28 @@
+# ===== BLOQUE COMUN repos-sync — no editar a mano en cada repo =====
+# Fuente de verdad: BIBLIOTECA/skills/repos-sync/gitignore-comun.txt
+
+# Datos reales — nunca versionar
+data/datos_brutos/
+clientes/
+*.pbix
+*_REAL.xlsx
+*_REAL.csv
+
+# Secretos
+.env
+.env.local
+
+# Sistema
+.DS_Store
+~$*
+
+# Config local de asistentes IA
+graphify-out/
+.claude/worktrees/
+
+# Sello de revision de conclave (estado local, nunca se versiona)
+.conclave/
+
+# Playwright (estado local)
+.playwright/
+# ===== FIN BLOQUE COMUN repos-sync =====
