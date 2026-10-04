@@ -47,7 +47,12 @@
     return (n < 0 && centimos ? '-' : '') + enteros + ',' + dec + ' €';
   }
 
-  const API = { PRECIOS, comidaPorPersona, calcular, contarNoches, eur };
+  // "1 noche" / "3 noches"
+  function cuenta(n, singular, plural) {
+    return n + ' ' + (n === 1 ? singular : plural);
+  }
+
+  const API = { PRECIOS, comidaPorPersona, calcular, contarNoches, eur, cuenta };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   else root.Reserva = API;
 })(this);

@@ -34,3 +34,16 @@ test('totales de cuatro cifras se muestran con punto de miles', async () => {
   assert.equal(p.$('#v-tot').textContent, '1.228,00 €');
   p.cerrar();
 });
+
+test('la línea de comidas dice cuántas noches cobra, igual que la de alojamiento', async () => {
+  const p = await abrir();
+  p.cambiar('#e', '2026-09-12');
+  p.cambiar('#s', '2026-09-15');
+  assert.equal(p.$('#l-cama').textContent, 'Alojamiento · 2 personas × 3 noches');
+  assert.equal(p.$('#l-com').textContent, 'Media pensión · 2 personas × 3 noches');
+  assert.equal(p.$('#v-com').textContent, '189,00 €'); // 31,50 × 2 × 3
+  p.marcar('input[name=pen][value=cp]');
+  p.cambiar('#ad', '1');
+  assert.equal(p.$('#l-com').textContent, 'Media pensión y picnic · 1 persona × 3 noches');
+  p.cerrar();
+});

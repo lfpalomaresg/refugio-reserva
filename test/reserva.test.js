@@ -48,3 +48,9 @@ test('eur agrupa miles siempre (es-ES no agrupa 4 cifras con toLocaleString)', (
   assert.equal(R.eur(-5), '-5,00 €');
   assert.equal(R.eur(-0), '0,00 €');
 });
+
+test('cuenta: número con singular o plural', () => {
+  assert.equal(R.cuenta(1, 'noche', 'noches'), '1 noche');
+  assert.equal(R.cuenta(3, 'noche', 'noches'), '3 noches');
+  assert.equal(R.cuenta(1, 'persona', 'personas'), '1 persona');
+});
