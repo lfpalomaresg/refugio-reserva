@@ -265,3 +265,20 @@ test('teclear la licencia no reescribe el total anunciado si no cambia (sin spam
   assert.equal(cambios, 0);
   p.cerrar();
 });
+
+test('si el cálculo falla, no queda un total viejo ni se puede confirmar', async () => {
+  const p = await abrir({ permitirErrores: true });
+  const raro = p.d.createElement('option');
+  raro.value = ''; raro.textContent = '—';
+  p.$('#ad').append(raro);
+  p.cambiar('#ad', ''); // 0 adultos: calcular lanza RangeError
+  assert.equal(p.$('#v-tot').textContent, '—');
+  assert.equal(p.$('#confirmar').disabled, true);
+  assert.equal(p.$('#total-vivo').textContent, 'No se puede calcular el total.');
+  assert.equal(p.erroresConsola.length, 1);
+  assert.ok(p.erroresConsola[0][0] instanceof p.w.RangeError, 'el fallo esperado es el RangeError de calcular');
+  p.cambiar('#ad', '2');
+  assert.equal(p.$('#v-tot').textContent, '113,00 €');
+  assert.equal(p.$('#confirmar').disabled, false);
+  p.cerrar();
+});

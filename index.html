@@ -327,7 +327,20 @@ function guardaEnUrl(){
   try { history.replaceState(null, '', location.pathname + q + location.hash); } catch (e) { /* file:// o límite de llamadas (Safari): la URL deja de actualizarse, nada más */ }
 }
 
+// Si el cálculo falla (entrada que Reserva.calcular rechaza), nada de totales viejos ni botón activo.
 function pinta(){
+  try {
+    pintaReserva();
+  } catch (err) {
+    console.error(err);
+    $('#v-cama').textContent = $('#v-com').textContent = $('#v-tot').textContent = '—';
+    $('#l-ahorro-fila').hidden = true;
+    $('#confirmar').disabled = true;
+    anuncia('No se puede calcular el total.');
+  }
+}
+
+function pintaReserva(){
   $('#confirmacion').hidden = true;
   guardaEnUrl();
   const tar = document.querySelector('input[name=tar]:checked').value;

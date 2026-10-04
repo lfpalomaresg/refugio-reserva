@@ -7,7 +7,8 @@ const fs = require('node:fs');
 
 const RAIZ = path.join(__dirname, '..', '..');
 const ORIGEN = 'http://refugio.test/';
-const { JSDOM, requestInterceptor } = require('jsdom');
+const assert = require('node:assert/strict');
+const { JSDOM, VirtualConsole, requestInterceptor } = require('jsdom');
 
 // Fija "hoy" (hora local, a mediodía) para que los tests no dependan del día en que se ejecutan.
 function congelarReloj(window, hoyISO) {
@@ -31,11 +32,18 @@ async function abrir(opciones = {}) {
       return new Response(fs.readFileSync(ruta), { headers: { 'Content-Type': tipo } });
     }
     peticionesExternas.push(request.url);
-    return new Response('', { status: 204 });
+    return new Response('', { status: 200, headers: { 'Content-Type': 'text/css' } }); // vacío: no sale a la red
   });
+  // Errores de consola y excepciones de la página: un test falla si aparecen sin esperarlos
+  // (pinta() captura errores para no dejar la página rota; esto evita que los tape en los tests).
+  const erroresConsola = [];
+  const consola = new VirtualConsole();
+  consola.on('error', (...args) => erroresConsola.push(args));
+  consola.on('jsdomError', e => erroresConsola.push([e]));
   const dom = await JSDOM.fromFile(path.join(RAIZ, 'index.html'), {
     url: ORIGEN + 'index.html' + (opciones.query || ''),
     runScripts: 'dangerously',
+    virtualConsole: consola,
     resources: { interceptors: [soloLocal] },
     pretendToBeVisual: true,
     beforeParse(window) {
@@ -62,7 +70,11 @@ async function abrir(opciones = {}) {
     el.checked = true;
     el.dispatchEvent(new w.Event('change', { bubbles: true }));
   };
-  return { peticionesExternas, dom, w, d, $, cambiar, teclear, marcar, cerrar: () => w.close() };
+  return { peticionesExternas, dom, w, d, $, cambiar, teclear, marcar, erroresConsola,
+    cerrar: () => {
+      w.close();
+      if (!opciones.permitirErrores) assert.deepEqual(erroresConsola, [], 'errores inesperados en la página');
+    } };
 }
 
 module.exports = { abrir };
