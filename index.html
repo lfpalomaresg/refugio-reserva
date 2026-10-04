@@ -134,6 +134,7 @@ input[aria-invalid="true"]{border-color:var(--error)}
   color:var(--tinta); font-weight:700; font-size:1.16rem; padding-top:9px;
   border-top:1px solid var(--linea); margin-top:4px;
 }
+.solo-lector{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap}
 .pago{font-size:.8rem; color:var(--tinta-2); margin:2px 0 0}
 .cta{
   display:block; width:100%; margin-top:12px; padding:14px; border:0; border-radius:10px;
@@ -266,6 +267,7 @@ input[aria-invalid="true"]{border-color:var(--error)}
       <div class="lin"><span id="l-cama">Alojamiento · 2 personas × 1 noche</span><span id="v-cama">50,00 €</span></div>
       <div class="lin" id="l-com-fila"><span id="l-com">Media pensión · 2 personas × 1 noche</span><span id="v-com">63,00 €</span></div>
       <div class="lin suma"><span>Total</span><span id="v-tot">113,00 €</span></div>
+      <p class="solo-lector" id="total-vivo" aria-live="polite">Total: 113,00 €</p>
       <div class="lin ahorro" id="l-ahorro-fila" hidden><span>Ahorro como federado (ya descontado)</span><span id="v-ahorro"></span></div>
       <p class="pago">Se paga en el refugio. Cancelación gratuita hasta 6 días antes (5 € de gestión).</p>
       <button class="cta" id="confirmar" type="button">Confirmar reserva</button>
@@ -309,6 +311,11 @@ const $ = s => document.querySelector(s);
 const eur = Reserva.eur;
 let nochesPrevias = 1;
 
+
+// Solo toca la región aria-live si el texto cambia: reescribirlo igual hace que algunos lectores lo repitan.
+function anuncia(txt){
+  if ($('#total-vivo').textContent !== txt) $('#total-vivo').textContent = txt;
+}
 
 // La URL refleja el escenario para poder compartirlo. Nunca incluye la licencia.
 function guardaEnUrl(){
@@ -357,6 +364,7 @@ function pinta(){
   if (errFechas){
     $('#v-cama').textContent = $('#v-com').textContent = $('#v-tot').textContent = '—';
     $('#l-ahorro-fila').hidden = true;
+    anuncia('Revisa las fechas para ver el total.');
     return;
   }
 
@@ -370,6 +378,7 @@ function pinta(){
   $('#v-com').textContent = eur(r.comidas);
 
   $('#v-tot').textContent = eur(r.total);
+  anuncia('Total: ' + eur(r.total));
 
   const ahorro = Reserva.ahorroFederado({adultos:ad, menores:ni, pension:pen, noches:n});
   $('#l-ahorro-fila').hidden = !(tar === 'fed' && ahorro > 0);

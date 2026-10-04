@@ -241,3 +241,27 @@ test('URL con solo la entrada, o con salida no posterior: fechas por defecto', a
     p.cerrar();
   }
 });
+
+test('el total se anuncia a lectores de pantalla con un texto completo', async () => {
+  const p = await abrir();
+  const vivo = p.$('#total-vivo');
+  assert.equal(vivo.getAttribute('aria-live'), 'polite');
+  assert.equal(vivo.textContent, 'Total: 113,00 €');
+  p.cambiar('#ad', '1');
+  assert.equal(vivo.textContent, 'Total: 56,50 €'); // 25 + 31,50
+  p.cambiar('#s', p.$('#e').value);
+  assert.equal(vivo.textContent, 'Revisa las fechas para ver el total.');
+  p.cerrar();
+});
+
+test('teclear la licencia no reescribe el total anunciado si no cambia (sin spam al lector)', async () => {
+  const p = await abrir();
+  p.marcar('input[name=tar][value=fed]');
+  let cambios = 0;
+  new p.w.MutationObserver(m => { cambios += m.length; })
+    .observe(p.$('#total-vivo'), { childList: true, characterData: true, subtree: true });
+  for (const parcial of ['A', 'AN', 'AND']) p.teclear('#licencia', parcial);
+  await new Promise(r => setTimeout(r, 0));
+  assert.equal(cambios, 0);
+  p.cerrar();
+});
