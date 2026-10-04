@@ -141,3 +141,20 @@ test('los valores a medias que se teclean en la entrada no cambian las noches a 
   assert.equal(p.$('#s').value, '2026-10-13');
   p.cerrar();
 });
+
+test('Confirmar muestra el resumen de la maqueta sin enviar nada a ningún sitio', async () => {
+  const p = await abrir({ hoy: '2026-10-04' });
+  assert.equal(p.$('#confirmacion').hidden, true);
+  const antes = p.peticionesExternas.length;
+  p.$('.cta').click();
+  const c = p.$('#confirmacion');
+  assert.equal(c.hidden, false);
+  assert.match(c.textContent, /no se ha enviado/i);
+  assert.match(c.textContent, /113,00 €/);
+  assert.match(c.textContent, /2 personas × 1 noche/);
+  assert.equal(p.peticionesExternas.length, antes);
+  // cambiar algo después invalida el resumen: no puede quedar uno con datos viejos
+  p.cambiar('#ad', '3');
+  assert.equal(c.hidden, true);
+  p.cerrar();
+});

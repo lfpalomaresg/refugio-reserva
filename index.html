@@ -140,6 +140,13 @@ input[aria-invalid="true"]{border-color:var(--error)}
 }
 .cta:hover{background:var(--ambar-h)}
 
+.confirmacion{margin-top:12px; padding:12px 14px; border:1.5px dashed var(--ambar); border-radius:10px;
+  background:var(--papel); font-size:.88rem}
+.confirmacion[hidden]{display:none}
+.confirmacion p{margin:0}
+.confirmacion .c1{font-weight:700; margin-bottom:4px}
+.confirmacion .c2{margin-top:6px; color:var(--tinta-2); font-size:.8rem}
+
 .nota{
   margin-top:30px; border-left:3px solid var(--ambar); padding:2px 0 2px 16px;
   font-size:.93rem; color:var(--tinta-2); max-width:64ch;
@@ -258,7 +265,12 @@ input[aria-invalid="true"]{border-color:var(--error)}
       <div class="lin" id="l-com-fila"><span id="l-com">Media pensión · 2 personas × 1 noche</span><span id="v-com">63,00 €</span></div>
       <div class="lin suma"><span>Total</span><span id="v-tot">113,00 €</span></div>
       <p class="pago">Se paga en el refugio. Cancelación gratuita hasta 6 días antes (5 € de gestión).</p>
-      <button class="cta">Confirmar reserva</button>
+      <button class="cta" type="button">Confirmar reserva</button>
+      <div class="confirmacion" id="confirmacion" role="status" hidden>
+        <p class="c1">Así quedaría la reserva</p>
+        <p id="c-resumen"></p>
+        <p class="c2">Esto es una maqueta: no se ha enviado ni guardado nada.</p>
+      </div>
     </div>
   </div>
 
@@ -293,6 +305,7 @@ let nochesPrevias = 1;
 
 
 function pinta(){
+  $('#confirmacion').hidden = true;
   const tar = document.querySelector('input[name=tar]:checked').value;
   const pen = document.querySelector('input[name=pen]:checked').value;
   const p = Reserva.PRECIOS[tar];
@@ -338,6 +351,14 @@ function pinta(){
 
   $('#v-tot').textContent = eur(r.total);
 }
+
+// Maqueta: confirmar solo enseña el resumen. Nada sale del navegador.
+$('.cta').addEventListener('click', () => {
+  const lineas = [$('#l-cama').textContent];
+  if ($('#l-com-fila').style.display !== 'none') lineas.push($('#l-com').textContent);
+  $('#c-resumen').textContent = lineas.join(' · ') + ' — Total ' + $('#v-tot').textContent;
+  $('#confirmacion').hidden = false;
+});
 
 // Fechas por defecto: mañana y pasado. La maqueta no debe abrir con una fecha ya pasada.
 const hoy = Reserva.hoyISO(new Date());
