@@ -1,5 +1,28 @@
 # Notas de sesión
 
+## 2026-10-04 (Mac, Claude Opus 5.5) — pendientes del hilo: Safari y fuentes locales
+
+**Hecho**
+- Safari (WebKit de Playwright, motor de Safari): WebKit solo emite `input` al editar un `<input type=date>`
+  y deja `change` para cuando se sale del campo, así que la salida no se arrastraba (aviso de fechas y
+  Confirmar bloqueado hasta salir). Corregido: arrastre en `input` y `change`, siempre desde la salida
+  ELEGIDA por el usuario (`salidaElegida`), para que el resultado no dependa del camino de tecleo (hallazgo
+  IMPORTANTE de la revisión: teclear 12/09 dejaba la salida movida de más). `ea94b4b`.
+- `test/navegadores.test.js` (antes `chrome.test.js`): mismos casos en Chrome y WebKit reales; fallan ante
+  errores de consola o cualquier petición fuera del propio sitio.
+- RGPD: Montserrat servida desde `fuentes/` (subconjunto latin de @fontsource/montserrat 5.3.0, OFL 1.1);
+  fuera Google Fonts; CSP con `style-src`/`font-src 'self'`. `7056e31`.
+
+**Pendiente**
+- Safari real (no WebKit de Playwright) solo es automatizable activando «Permitir automatización remota»
+  en Ajustes de Safari › Desarrollador: lo decide el operador.
+
+**Decidido**
+- Mientras la salida está arrastrada, sigue a la entrada conservando las noches; la salida que eligió el
+  usuario no se toca mientras siga siendo posterior (test del loop 9 actualizado a propósito).
+- `robots.txt` se deja: en una página de proyecto (`/refugio-reserva/`) los buscadores no lo leen; manda
+  el `<meta name="robots" content="noindex">`.
+
 ## 2026-10-04 (Mac, Claude Opus 5.5) — bug de tecleo de la fecha de entrada en Chrome
 
 **Hecho**
@@ -12,7 +35,7 @@
 
 **Pendiente**
 - (Resuelto) La prueba manual del tecleo en Chrome que quedó abierta en la sesión anterior.
-- Safari no se ha probado (playwright-core con WebKit requiere descargar el navegador).
+- ~~Safari no se ha probado~~ → probado con WebKit (ver la entrada siguiente de esta fecha).
 
 **Decidido**
 - Cambio de comportamiento asumido: si el usuario adelanta la entrada manteniendo la salida y después la
@@ -38,7 +61,7 @@
 **Pendiente**
 - ~~Probar a mano en un `<input type=date>` real tecleando la entrada~~ → reproducido y corregido
   (ver la entrada siguiente de esta misma fecha).
-- Opcional: alojar Montserrat en local (Google Fonts envía la IP del visitante a Google).
+- ~~Opcional: alojar Montserrat en local~~ → hecho (`7056e31`).
 - El repo sigue público mientras Fernando pueda abrir el enlace (ver ficha del proyecto).
 
 **Decidido**
