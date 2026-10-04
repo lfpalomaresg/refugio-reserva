@@ -1,0 +1,28 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const R = require('../reserva.js');
+
+// Valores esperados calculados a mano con las tarifas publicadas del refugio:
+// general cama 25 / menor 9 · cena 21 · desayuno 10,50 · picnic 15
+// federado cama 17 / menor 6 · cena 18 · desayuno 8,50 · picnic 14
+
+test('2 adultos, general, media pensión, 1 noche = 50 + 63 = 113', () => {
+  const r = R.calcular({ adultos: 2, menores: 0, tarifa: 'gen', pension: 'md', noches: 1 });
+  assert.equal(r.cama, 50);
+  assert.equal(r.comidas, 63);
+  assert.equal(r.total, 113);
+});
+
+test('1 adulto + 2 menores, federado, MP y picnic, 2 noches = 58 + 243 = 301', () => {
+  const r = R.calcular({ adultos: 1, menores: 2, tarifa: 'fed', pension: 'cp', noches: 2 });
+  assert.equal(r.cama, 58);
+  assert.equal(r.comidas, 243);
+  assert.equal(r.total, 301);
+});
+
+test('solo dormir no suma comidas', () => {
+  const r = R.calcular({ adultos: 3, menores: 1, tarifa: 'gen', pension: '0', noches: 1 });
+  assert.equal(r.cama, 84);
+  assert.equal(r.comidas, 0);
+  assert.equal(r.total, 84);
+});

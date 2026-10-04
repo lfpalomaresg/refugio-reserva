@@ -1,0 +1,11 @@
+{
+  "name": "refugio-reserva",
+  "private": true,
+  "description": "Maqueta del paso de reserva del Refugio Picón de Jérez",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "devDependencies": {
+    "jsdom": "30.1.1"
+  }
+}

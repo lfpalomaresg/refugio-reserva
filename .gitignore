@@ -26,3 +26,6 @@ graphify-out/
 # Playwright (estado local)
 .playwright/
 # ===== FIN BLOQUE COMUN repos-sync =====
+
+# Dependencias de desarrollo (runner de tests)
+node_modules/

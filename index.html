@@ -277,11 +277,8 @@ input[type=text]{
 
 </div>
 
+<script src="reserva.js"></script>
 <script>
-const P = {
-  gen:{cama:25, cena:21, des:10.5, pic:15},
-  fed:{cama:17, cena:18, des:8.5,  pic:14}
-};
 const $ = s => document.querySelector(s);
 const eur = n => n.toLocaleString('es-ES',{minimumFractionDigits:2, maximumFractionDigits:2}) + ' €';
 
@@ -294,30 +291,26 @@ function noches(){
 function pinta(){
   const tar = document.querySelector('input[name=tar]:checked').value;
   const pen = document.querySelector('input[name=pen]:checked').value;
-  const p = P[tar];
+  const p = Reserva.PRECIOS[tar];
   const ad = +$('#ad').value, ni = +$('#ni').value, pax = ad + ni, n = noches();
 
   $('#lic').hidden = (tar !== 'fed');
 
-  // menores de 14: 9 € general / 6 € federado, según sus tarifas publicadas
-  const camaMenor = (tar === 'fed') ? 6 : 9;
-  const cama = (ad * p.cama + ni * camaMenor) * n;
+  const r = Reserva.calcular({adultos:ad, menores:ni, tarifa:tar, pension:pen, noches:n});
+  const porPax = Reserva.comidaPorPersona(p, pen);
 
-  const porPax = pen === 'md' ? p.cena + p.des : pen === 'cp' ? p.cena + p.des + p.pic : 0;
-  const com = porPax * pax * n;
-
-  $('#p-md').textContent = '+' + eur(p.cena + p.des);
-  $('#p-cp').textContent = '+' + eur(p.cena + p.des + p.pic);
+  $('#p-md').textContent = '+' + eur(Reserva.comidaPorPersona(p, 'md'));
+  $('#p-cp').textContent = '+' + eur(Reserva.comidaPorPersona(p, 'cp'));
 
   $('#l-cama').textContent = `Alojamiento · ${pax} ${pax===1?'persona':'personas'} × ${n} ${n===1?'noche':'noches'}`;
-  $('#v-cama').textContent = eur(cama);
+  $('#v-cama').textContent = eur(r.cama);
 
   const fila = $('#l-com-fila');
   fila.style.display = porPax ? '' : 'none';
   $('#l-com').textContent = (pen === 'cp' ? 'Media pensión y picnic' : 'Media pensión') + ` · ${pax} ${pax===1?'persona':'personas'}`;
-  $('#v-com').textContent = eur(com);
+  $('#v-com').textContent = eur(r.comidas);
 
-  $('#v-tot').textContent = eur(cama + com);
+  $('#v-tot').textContent = eur(r.total);
 }
 
 document.querySelectorAll('input,select').forEach(el => {
