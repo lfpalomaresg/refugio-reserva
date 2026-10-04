@@ -154,3 +154,18 @@ test('escribirEstado sin estado devuelve cadena vacía', () => {
   assert.equal(R.escribirEstado(null), '');
   assert.equal(R.escribirEstado(undefined), '');
 });
+
+test('calcular rechaza entradas que darían NaN o importes absurdos', () => {
+  const ok = { adultos: 2, menores: 0, tarifa: 'gen', pension: 'md', noches: 1 };
+  assert.throws(() => R.calcular({ ...ok, tarifa: 'vip' }), RangeError);
+  assert.throws(() => R.calcular({ ...ok, tarifa: '__proto__' }), RangeError);
+  assert.throws(() => R.calcular({ ...ok, tarifa: 'toString' }), RangeError);
+  assert.throws(() => R.calcular({ ...ok, noches: Infinity }), RangeError);
+  assert.throws(() => R.calcular({ ...ok, pension: 'todo' }), RangeError);
+  assert.throws(() => R.calcular({ ...ok, adultos: 0 }), RangeError);
+  assert.throws(() => R.calcular({ ...ok, adultos: 1.5 }), RangeError);
+  assert.throws(() => R.calcular({ ...ok, menores: -1 }), RangeError);
+  assert.throws(() => R.calcular({ ...ok, noches: NaN }), RangeError);
+  assert.throws(() => R.calcular({ ...ok, adultos: '2' }), RangeError);
+  assert.equal(R.calcular({ ...ok, noches: 0 }).total, 0); // 0 noches es válido: no hay nada que cobrar
+});

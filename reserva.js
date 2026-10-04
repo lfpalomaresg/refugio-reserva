@@ -15,7 +15,15 @@
     return 0;
   }
 
+  const entero = (n, min) => Number.isInteger(n) && n >= min;
+
+  // Lanza RangeError ante entradas que darían NaN o importes sin sentido, en vez de pintarlos.
   function calcular({ adultos, menores, tarifa, pension, noches }) {
+    if (!Object.prototype.hasOwnProperty.call(PRECIOS, tarifa)) throw new RangeError('tarifa desconocida: ' + tarifa);
+    if (!['0', 'md', 'cp'].includes(pension)) throw new RangeError('pensión desconocida: ' + pension);
+    if (!entero(adultos, 1) || !entero(menores, 0) || !entero(noches, 0)) {
+      throw new RangeError('adultos ≥ 1, menores ≥ 0 y noches ≥ 0 deben ser enteros');
+    }
     const p = PRECIOS[tarifa];
     const cama = (adultos * p.cama + menores * p.camaMenor) * noches;
     const comidas = comidaPorPersona(p, pension) * (adultos + menores) * noches;
