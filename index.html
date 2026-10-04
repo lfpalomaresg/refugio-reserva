@@ -22,7 +22,7 @@
   --crema:#FAF5E5; --crema-2:#F0E6C5;
   --tinta:#0F172A; --tinta-2:#4A4A4A;
   --papel:#FFFFFF; --linea:#E3D9BE;
-  --ok:#2F6B46; --sombra:0 1px 2px rgba(20,16,4,.06), 0 8px 24px rgba(20,16,4,.07);
+  --ok:#2F6B46; --error:#A6361F; --sombra:0 1px 2px rgba(20,16,4,.06), 0 8px 24px rgba(20,16,4,.07);
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
@@ -30,7 +30,7 @@
     --crema:#141004; --crema-2:#1F1809;
     --tinta:#F5EFE0; --tinta-2:#B8AE97;
     --papel:#1B1509; --linea:#332913;
-    --ok:#7FC79A; --sombra:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+    --ok:#7FC79A; --error:#F0907A; --sombra:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
   }
 }
 :root[data-theme="dark"]{
@@ -38,7 +38,7 @@
   --crema:#141004; --crema-2:#1F1809;
   --tinta:#F5EFE0; --tinta-2:#B8AE97;
   --papel:#1B1509; --linea:#332913;
-  --ok:#7FC79A; --sombra:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  --ok:#7FC79A; --error:#F0907A; --sombra:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
 }
 
 *{box-sizing:border-box}
@@ -112,6 +112,10 @@ input[type=text]{
   :root:not([data-theme="light"]) .op:has(input:checked) .eur{color:var(--ambar)}
 }
 
+.aviso{margin:-12px 0 0; font-size:.85rem; font-weight:600; color:var(--error)}
+.aviso[hidden]{display:none}
+.cta:disabled, .cta:disabled:hover{opacity:.5; cursor:not-allowed; background:var(--ambar)}
+
 .licencia{margin-top:10px; padding-left:29px}
 .licencia[hidden]{display:none}
 .licencia small{display:block; margin-top:6px; font-size:.78rem; color:var(--tinta-2)}
@@ -180,6 +184,7 @@ input[type=text]{
           <input type="date" id="s" value="2026-09-13">
         </div>
       </div>
+      <p class="aviso" id="aviso-fechas" role="alert" hidden>La salida tiene que ser posterior a la entrada.</p>
 
       <div class="fila">
         <div class="campo">
@@ -282,17 +287,13 @@ input[type=text]{
 const $ = s => document.querySelector(s);
 const eur = n => n.toLocaleString('es-ES',{minimumFractionDigits:2, maximumFractionDigits:2}) + ' €';
 
-function noches(){
-  const a = new Date($('#e').value), b = new Date($('#s').value);
-  const n = Math.round((b - a) / 86400000);
-  return (isFinite(n) && n > 0) ? n : 1;
-}
 
 function pinta(){
   const tar = document.querySelector('input[name=tar]:checked').value;
   const pen = document.querySelector('input[name=pen]:checked').value;
   const p = Reserva.PRECIOS[tar];
-  const ad = +$('#ad').value, ni = +$('#ni').value, pax = ad + ni, n = noches();
+  const ad = +$('#ad').value, ni = +$('#ni').value, pax = ad + ni;
+  const n = Reserva.contarNoches($('#e').value, $('#s').value);
 
   $('#lic').hidden = (tar !== 'fed');
 
@@ -301,6 +302,14 @@ function pinta(){
 
   $('#p-md').textContent = '+' + eur(Reserva.comidaPorPersona(p, 'md'));
   $('#p-cp').textContent = '+' + eur(Reserva.comidaPorPersona(p, 'cp'));
+
+  const fechasOk = n > 0;
+  $('#aviso-fechas').hidden = fechasOk;
+  $('.cta').disabled = !fechasOk;
+  if (!fechasOk){
+    $('#v-cama').textContent = $('#v-com').textContent = $('#v-tot').textContent = '—';
+    return;
+  }
 
   $('#l-cama').textContent = `Alojamiento · ${pax} ${pax===1?'persona':'personas'} × ${n} ${n===1?'noche':'noches'}`;
   $('#v-cama').textContent = eur(r.cama);

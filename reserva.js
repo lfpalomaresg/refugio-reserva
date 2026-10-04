@@ -22,7 +22,24 @@
     return { cama, comidas, total: cama + comidas };
   }
 
-  const API = { PRECIOS, comidaPorPersona, calcular };
+  // 'YYYY-MM-DD' -> días desde epoch (UTC, inmune al cambio de hora), o null si no es una fecha válida.
+  function diaISO(txt) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(txt || '');
+    if (!m) return null;
+    const t = Date.UTC(+m[1], +m[2] - 1, +m[3]);
+    const d = new Date(t);
+    if (d.getUTCMonth() !== +m[2] - 1 || d.getUTCDate() !== +m[3]) return null;
+    return t / 86400000;
+  }
+
+  // Noches entre entrada y salida; 0 si falta una fecha o la salida no es posterior.
+  function contarNoches(entrada, salida) {
+    const a = diaISO(entrada), b = diaISO(salida);
+    if (a === null || b === null || b <= a) return 0;
+    return b - a;
+  }
+
+  const API = { PRECIOS, comidaPorPersona, calcular, contarNoches };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   else root.Reserva = API;
 })(this);

@@ -26,3 +26,16 @@ test('solo dormir no suma comidas', () => {
   assert.equal(r.comidas, 0);
   assert.equal(r.total, 84);
 });
+
+test('contarNoches cuenta noches entre dos fechas ISO', () => {
+  assert.equal(R.contarNoches('2026-09-12', '2026-09-15'), 3);
+  assert.equal(R.contarNoches('2026-10-24', '2026-10-26'), 2); // cruza el cambio de hora
+});
+
+test('contarNoches devuelve 0 si la salida no es posterior o falta una fecha', () => {
+  assert.equal(R.contarNoches('2026-09-12', '2026-09-12'), 0);
+  assert.equal(R.contarNoches('2026-09-15', '2026-09-12'), 0);
+  assert.equal(R.contarNoches('', '2026-09-12'), 0);
+  assert.equal(R.contarNoches('2026-09-12', 'basura'), 0);
+  assert.equal(R.contarNoches('2026-02-30', '2026-03-02'), 0); // fecha imposible
+});
