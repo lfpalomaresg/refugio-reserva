@@ -108,3 +108,10 @@ test('fechaLarga escribe la fecha en castellano, sin depender del idioma del nav
   assert.equal(R.fechaLarga('2028-02-29'), 'martes 29 de febrero');
   assert.equal(R.fechaLarga('basura'), '');
 });
+
+test('eurCorto omite los céntimos solo si son cero', () => {
+  assert.equal(R.eurCorto(25), '25 €');
+  assert.equal(R.eurCorto(10.5), '10,50 €');
+  assert.equal(R.eurCorto(1250), '1.250 €');
+  assert.equal(R.eurCorto(0), '0 €');
+});

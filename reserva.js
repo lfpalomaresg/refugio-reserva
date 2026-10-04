@@ -62,6 +62,12 @@
     return (n < 0 && centimos ? '-' : '') + enteros + ',' + dec + ' €';
   }
 
+  // '25 €' / '10,50 €': sin céntimos cuando son cero (para etiquetas de precio unitario).
+  function eurCorto(n) {
+    const largo = eur(n);
+    return largo.endsWith(',00 €') ? largo.slice(0, -5) + ' €' : largo;
+  }
+
   // "1 noche" / "3 noches"
   function cuenta(n, singular, plural) {
     return n + ' ' + (n === 1 ? singular : plural);
@@ -97,7 +103,7 @@
     return DIAS[d.getUTCDay()] + ' ' + d.getUTCDate() + ' de ' + MESES[d.getUTCMonth()];
   }
 
-  const API = { PRECIOS, comidaPorPersona, calcular, contarNoches, eur, cuenta, validar, hoyISO, sumarDias, ajustarSalida, fechaLarga };
+  const API = { PRECIOS, comidaPorPersona, calcular, contarNoches, eur, cuenta, validar, hoyISO, sumarDias, ajustarSalida, fechaLarga, eurCorto };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   else root.Reserva = API;
 })(this);

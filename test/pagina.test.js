@@ -175,3 +175,13 @@ test('el resumen de Confirmar incluye fechas y tarifa, y vive en una región que
   assert.doesNotMatch(txt, /pensión/); // solo dormir: sin línea de comidas
   p.cerrar();
 });
+
+test('los precios por noche de las tarifas salen de la tabla de precios, no del HTML', async () => {
+  const p = await abrir();
+  assert.equal(p.$('#p-gen').textContent, '25 € / noche');
+  assert.equal(p.$('#p-fed').textContent, '17 € / noche');
+  p.w.Reserva.PRECIOS.gen.cama = 27; // si cambia la tarifa, la etiqueta la sigue
+  p.cambiar('#ad', '1');
+  assert.equal(p.$('#p-gen').textContent, '27 € / noche');
+  p.cerrar();
+});

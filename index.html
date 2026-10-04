@@ -212,14 +212,14 @@ input[aria-invalid="true"]{border-color:var(--error)}
           <label class="op">
             <input type="radio" name="tar" value="gen" checked>
             <span class="txt">
-              <span class="t1"><span>General</span><span class="eur">25 € / noche</span></span>
+              <span class="t1"><span>General</span><span class="eur" id="p-gen">25 € / noche</span></span>
               <span class="t2">Sin licencia federativa en vigor.</span>
             </span>
           </label>
           <label class="op">
             <input type="radio" name="tar" value="fed">
             <span class="txt">
-              <span class="t1"><span>Federado</span><span class="eur">17 € / noche</span></span>
+              <span class="t1"><span>Federado</span><span class="eur" id="p-fed">17 € / noche</span></span>
               <span class="t2">Con licencia de montaña en vigor.</span>
             </span>
           </label>
@@ -320,6 +320,8 @@ function pinta(){
   const r = Reserva.calcular({adultos:ad, menores:ni, tarifa:tar, pension:pen, noches:n});
   const porPax = Reserva.comidaPorPersona(p, pen);
 
+  $('#p-gen').textContent = Reserva.eurCorto(Reserva.PRECIOS.gen.cama) + ' / noche';
+  $('#p-fed').textContent = Reserva.eurCorto(Reserva.PRECIOS.fed.cama) + ' / noche';
   $('#p-md').textContent = '+' + eur(Reserva.comidaPorPersona(p, 'md'));
   $('#p-cp').textContent = '+' + eur(Reserva.comidaPorPersona(p, 'cp'));
 
