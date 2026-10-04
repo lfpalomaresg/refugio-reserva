@@ -68,3 +68,15 @@ test('validar: federado sin licencia (o solo espacios) es error; con licencia, n
 test('validar: sin noches válidas es error de fechas', () => {
   assert.deepEqual(R.validar({ tarifa: 'fed', licencia: '', noches: 0 }), ['fechas', 'licencia']);
 });
+
+test('hoyISO usa la fecha local, no la UTC', () => {
+  assert.equal(R.hoyISO(new Date(2026, 9, 4, 0, 30)), '2026-10-04');
+  assert.equal(R.hoyISO(new Date(2026, 0, 9, 23, 59)), '2026-01-09');
+});
+
+test('sumarDias cruza meses, años y febrero bisiesto', () => {
+  assert.equal(R.sumarDias('2026-10-04', 1), '2026-10-05');
+  assert.equal(R.sumarDias('2026-12-31', 1), '2027-01-01');
+  assert.equal(R.sumarDias('2028-02-28', 1), '2028-02-29');
+  assert.equal(R.sumarDias('2026-03-01', -1), '2026-02-28');
+});

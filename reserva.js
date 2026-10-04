@@ -32,6 +32,19 @@
     return t / 86400000;
   }
 
+  const dos = n => String(n).padStart(2, '0');
+
+  // Fecha local de un Date como 'YYYY-MM-DD' (no toISOString, que es UTC y cambia de día de madrugada).
+  function hoyISO(d) {
+    return d.getFullYear() + '-' + dos(d.getMonth() + 1) + '-' + dos(d.getDate());
+  }
+
+  // 'YYYY-MM-DD' + n días (n puede ser negativo).
+  function sumarDias(iso, n) {
+    const d = new Date((diaISO(iso) + n) * 86400000);
+    return d.getUTCFullYear() + '-' + dos(d.getUTCMonth() + 1) + '-' + dos(d.getUTCDate());
+  }
+
   // Noches entre entrada y salida; 0 si falta una fecha o la salida no es posterior.
   function contarNoches(entrada, salida) {
     const a = diaISO(entrada), b = diaISO(salida);
@@ -60,7 +73,7 @@
     return errores;
   }
 
-  const API = { PRECIOS, comidaPorPersona, calcular, contarNoches, eur, cuenta, validar };
+  const API = { PRECIOS, comidaPorPersona, calcular, contarNoches, eur, cuenta, validar, hoyISO, sumarDias };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   else root.Reserva = API;
 })(this);

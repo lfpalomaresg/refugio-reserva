@@ -179,11 +179,11 @@ input[aria-invalid="true"]{border-color:var(--error)}
       <div class="fila">
         <div class="campo">
           <label class="et" for="e">Entrada</label>
-          <input type="date" id="e" value="2026-09-12" aria-describedby="aviso-fechas">
+          <input type="date" id="e" aria-describedby="aviso-fechas">
         </div>
         <div class="campo">
           <label class="et" for="s">Salida</label>
-          <input type="date" id="s" value="2026-09-13" aria-describedby="aviso-fechas">
+          <input type="date" id="s" aria-describedby="aviso-fechas">
         </div>
       </div>
       <p class="aviso" id="aviso-fechas" role="alert" hidden>La salida tiene que ser posterior a la entrada.</p>
@@ -330,6 +330,12 @@ function pinta(){
 
   $('#v-tot').textContent = eur(r.total);
 }
+
+// Fechas por defecto: mañana y pasado. La maqueta no debe abrir con una fecha ya pasada.
+const hoy = Reserva.hoyISO(new Date());
+$('#e').min = hoy;
+$('#e').value = Reserva.sumarDias(hoy, 1);
+$('#s').value = Reserva.sumarDias(hoy, 2);
 
 document.querySelectorAll('input,select').forEach(el => {
   el.addEventListener('change', pinta);

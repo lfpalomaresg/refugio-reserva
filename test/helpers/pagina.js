@@ -3,6 +3,18 @@
 const path = require('node:path');
 const { JSDOM, requestInterceptor } = require('jsdom');
 
+// Fija "hoy" (hora local, a mediodía) para que los tests no dependan del día en que se ejecutan.
+function congelarReloj(window, hoyISO) {
+  const D = window.Date;
+  const [a, m, d] = hoyISO.split('-').map(Number);
+  const fijo = new D(a, m - 1, d, 12).getTime();
+  class Congelada extends D {
+    constructor(...args) { if (args.length) super(...args); else super(fijo); }
+    static now() { return fijo; }
+  }
+  window.Date = Congelada;
+}
+
 async function abrir(opciones = {}) {
   const peticionesExternas = [];
   const soloLocal = requestInterceptor(request => {
@@ -14,7 +26,10 @@ async function abrir(opciones = {}) {
     runScripts: 'dangerously',
     resources: { interceptors: [soloLocal] },
     pretendToBeVisual: true,
-    beforeParse: opciones.beforeParse
+    beforeParse(window) {
+      congelarReloj(window, opciones.hoy || '2026-09-01');
+      if (opciones.beforeParse) opciones.beforeParse(window);
+    }
   });
   await new Promise(res => dom.window.addEventListener('load', res));
   const w = dom.window, d = w.document;

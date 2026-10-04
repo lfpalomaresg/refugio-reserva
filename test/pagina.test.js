@@ -72,6 +72,7 @@ test('campos con error quedan marcados aria-invalid y enlazados a su aviso', asy
   assert.equal(p.$('#e').getAttribute('aria-describedby'), 'aviso-fechas');
   assert.equal(p.$('#licencia').getAttribute('aria-describedby'), 'aviso-licencia');
 
+  p.cambiar('#e', '2026-09-12');
   p.cambiar('#s', '2026-09-11');
   assert.equal(p.$('#e').getAttribute('aria-invalid'), 'true');
   assert.equal(p.$('#s').getAttribute('aria-invalid'), 'true');
@@ -82,5 +83,14 @@ test('campos con error quedan marcados aria-invalid y enlazados a su aviso', asy
   assert.equal(p.$('#licencia').getAttribute('aria-invalid'), 'true');
   p.cambiar('#licencia', 'AND-0000');
   assert.equal(p.$('#licencia').getAttribute('aria-invalid'), 'false');
+  p.cerrar();
+});
+
+test('las fechas por defecto son mañana y pasado, nunca un día ya pasado', async () => {
+  const p = await abrir({ hoy: '2026-10-04' });
+  assert.equal(p.$('#e').value, '2026-10-05');
+  assert.equal(p.$('#s').value, '2026-10-06');
+  assert.equal(p.$('#e').min, '2026-10-04');
+  assert.equal(p.$('#v-tot').textContent, '113,00 €');
   p.cerrar();
 });
