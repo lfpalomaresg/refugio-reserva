@@ -91,6 +91,7 @@ input[type=text]{
   width:100%; font:inherit; font-size:.95rem; padding:11px 12px; color:var(--tinta);
   background:var(--crema); border:1px solid var(--linea); border-radius:9px;
 }
+input[aria-invalid="true"]{border-color:var(--error)}
 :focus-visible{outline:2.5px solid var(--ambar); outline-offset:2px}
 
 /* opciones tipo tarjeta: la tarifa y la pensión son ELECCIONES, no desplegables escondidos */
@@ -178,11 +179,11 @@ input[type=text]{
       <div class="fila">
         <div class="campo">
           <label class="et" for="e">Entrada</label>
-          <input type="date" id="e" value="2026-09-12">
+          <input type="date" id="e" value="2026-09-12" aria-describedby="aviso-fechas">
         </div>
         <div class="campo">
           <label class="et" for="s">Salida</label>
-          <input type="date" id="s" value="2026-09-13">
+          <input type="date" id="s" value="2026-09-13" aria-describedby="aviso-fechas">
         </div>
       </div>
       <p class="aviso" id="aviso-fechas" role="alert" hidden>La salida tiene que ser posterior a la entrada.</p>
@@ -217,7 +218,7 @@ input[type=text]{
           </label>
         </div>
         <div class="licencia" id="lic" hidden>
-          <input type="text" id="licencia" placeholder="Número de licencia federativa" aria-label="Número de licencia federativa">
+          <input type="text" id="licencia" aria-describedby="aviso-licencia" placeholder="Número de licencia federativa" aria-label="Número de licencia federativa">
           <p class="aviso" id="aviso-licencia" role="alert" hidden>Escribe el número de licencia para aplicar la tarifa de federado.</p>
           <small>Se comprueba al llegar. Sin número no se puede aplicar la tarifa reducida.</small>
         </div>
@@ -309,6 +310,10 @@ function pinta(){
   $('#aviso-fechas').hidden = !errores.includes('fechas');
   $('#aviso-licencia').hidden = !errores.includes('licencia');
   $('.cta').disabled = errores.length > 0;
+  const malFechas = String(errores.includes('fechas'));
+  $('#e').setAttribute('aria-invalid', malFechas);
+  $('#s').setAttribute('aria-invalid', malFechas);
+  $('#licencia').setAttribute('aria-invalid', String(errores.includes('licencia')));
   if (errores.includes('fechas')){
     $('#v-cama').textContent = $('#v-com').textContent = $('#v-tot').textContent = '—';
     return;

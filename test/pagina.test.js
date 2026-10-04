@@ -64,3 +64,23 @@ test('federado sin número de licencia: avisa y no deja confirmar', async () => 
   assert.equal(p.$('#aviso-licencia').hidden, true);
   p.cerrar();
 });
+
+test('campos con error quedan marcados aria-invalid y enlazados a su aviso', async () => {
+  const p = await abrir();
+  assert.equal(p.$('#s').getAttribute('aria-invalid'), 'false');
+  assert.equal(p.$('#s').getAttribute('aria-describedby'), 'aviso-fechas');
+  assert.equal(p.$('#e').getAttribute('aria-describedby'), 'aviso-fechas');
+  assert.equal(p.$('#licencia').getAttribute('aria-describedby'), 'aviso-licencia');
+
+  p.cambiar('#s', '2026-09-11');
+  assert.equal(p.$('#e').getAttribute('aria-invalid'), 'true');
+  assert.equal(p.$('#s').getAttribute('aria-invalid'), 'true');
+  p.cambiar('#s', '2026-09-14');
+  assert.equal(p.$('#s').getAttribute('aria-invalid'), 'false');
+
+  p.marcar('input[name=tar][value=fed]');
+  assert.equal(p.$('#licencia').getAttribute('aria-invalid'), 'true');
+  p.cambiar('#licencia', 'AND-0000');
+  assert.equal(p.$('#licencia').getAttribute('aria-invalid'), 'false');
+  p.cerrar();
+});
