@@ -122,3 +122,35 @@ test('ahorroFederado: diferencia entre tarifa general y federada para la misma r
   // 1 adulto + 1 menor, solo dormir, 2 noches: general (25+9)×2=68 · federado (17+6)×2=46
   assert.equal(R.ahorroFederado({ adultos: 1, menores: 1, pension: '0', noches: 2 }), 22);
 });
+
+test('leerEstado: toma de la URL solo valores permitidos', () => {
+  assert.deepEqual(
+    R.leerEstado('?e=2026-10-10&s=2026-10-12&ad=3&ni=1&tar=fed&pen=cp'),
+    { e: '2026-10-10', s: '2026-10-12', ad: '3', ni: '1', tar: 'fed', pen: 'cp' }
+  );
+});
+
+test('leerEstado: descarta valores fuera de rango, desconocidos o inyectados', () => {
+  assert.deepEqual(
+    R.leerEstado('?e=2026-02-30&s=mañana&ad=9&ni=-1&tar=vip&pen=<script>&licencia=AND-0000&x=1'),
+    {}
+  );
+  assert.deepEqual(R.leerEstado(''), {});
+  assert.deepEqual(R.leerEstado('?ad=0&ni=2&pen=0'), { ni: '2', pen: '0' });
+});
+
+test('escribirEstado: query con las claves conocidas y nunca la licencia', () => {
+  const q = R.escribirEstado({ e: '2026-10-10', s: '2026-10-12', ad: '2', ni: '0', tar: 'fed', pen: 'md', licencia: 'AND-0000' });
+  assert.equal(q, '?e=2026-10-10&s=2026-10-12&ad=2&ni=0&tar=fed&pen=md');
+  assert.deepEqual(R.leerEstado(q), { e: '2026-10-10', s: '2026-10-12', ad: '2', ni: '0', tar: 'fed', pen: 'md' });
+});
+
+test('años de 0 a 99 no se convierten en 1900-1999', () => {
+  assert.equal(R.sumarDias('0099-12-31', 1), '0100-01-01');
+  assert.equal(R.sumarDias('0002-10-10', 0), '0002-10-10');
+});
+
+test('escribirEstado sin estado devuelve cadena vacía', () => {
+  assert.equal(R.escribirEstado(null), '');
+  assert.equal(R.escribirEstado(undefined), '');
+});

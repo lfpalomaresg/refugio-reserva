@@ -31,8 +31,9 @@
   function diaISO(txt) {
     const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(txt || '');
     if (!m) return null;
-    const t = Date.UTC(+m[1], +m[2] - 1, +m[3]);
-    const d = new Date(t);
+    const d = new Date(0);
+    d.setUTCFullYear(+m[1], +m[2] - 1, +m[3]); // no Date.UTC: mapea los años 0-99 a 1900-1999
+    const t = d.getTime();
     if (d.getUTCMonth() !== +m[2] - 1 || d.getUTCDate() !== +m[3]) return null;
     return t / 86400000;
   }
@@ -49,7 +50,7 @@
     const base = diaISO(iso);
     if (base === null) return null;
     const d = new Date((base + n) * 86400000);
-    return d.getUTCFullYear() + '-' + dos(d.getUTCMonth() + 1) + '-' + dos(d.getUTCDate());
+    return String(d.getUTCFullYear()).padStart(4, '0') + '-' + dos(d.getUTCMonth() + 1) + '-' + dos(d.getUTCDate());
   }
 
   // Noches entre entrada y salida; 0 si falta una fecha o la salida no es posterior.
@@ -108,7 +109,39 @@
     return DIAS[d.getUTCDay()] + ' ' + d.getUTCDate() + ' de ' + MESES[d.getUTCMonth()];
   }
 
-  const API = { PRECIOS, comidaPorPersona, calcular, contarNoches, eur, cuenta, validar, hoyISO, sumarDias, ajustarSalida, fechaLarga, eurCorto, ahorroFederado };
+  // Escenario compartible por URL. Lista blanca por clave (mismos valores que ofrece la página);
+  // la licencia federativa NUNCA viaja en la URL.
+  const CLAVES = {
+    e: v => diaISO(v) !== null,
+    s: v => diaISO(v) !== null,
+    ad: v => ['1', '2', '3', '4'].includes(v),
+    ni: v => ['0', '1', '2'].includes(v),
+    tar: v => v === 'gen' || v === 'fed',
+    pen: v => v === '0' || v === 'md' || v === 'cp'
+  };
+
+  function leerEstado(query) {
+    const q = new URLSearchParams(query || '');
+    const estado = {};
+    for (const k of Object.keys(CLAVES)) {
+      const v = q.get(k);
+      if (v !== null && CLAVES[k](v)) estado[k] = v;
+    }
+    return estado;
+  }
+
+  function escribirEstado(estado) {
+    estado = estado || {};
+    const q = new URLSearchParams();
+    for (const k of Object.keys(CLAVES)) {
+      const v = estado[k] == null ? null : String(estado[k]);
+      if (v !== null && CLAVES[k](v)) q.set(k, v);
+    }
+    const txt = q.toString();
+    return txt ? '?' + txt : '';
+  }
+
+  const API = { PRECIOS, comidaPorPersona, calcular, contarNoches, eur, cuenta, validar, hoyISO, sumarDias, ajustarSalida, fechaLarga, eurCorto, ahorroFederado, leerEstado, escribirEstado };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   else root.Reserva = API;
 })(this);
