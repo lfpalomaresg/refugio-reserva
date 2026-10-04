@@ -21,9 +21,10 @@ npm test
 (`http://refugio.test/`), sin red (todo lo externo se bloquea y se registra), con el reloj congelado
 y fallando ante cualquier error de consola inesperado.
 
-`test/chrome.test.js` abre la maqueta en Google Chrome real (`playwright-core`, `channel: 'chrome'`,
-sin descargar navegadores) para lo que jsdom no simula, como teclear en un `<input type=date>`.
-Si Chrome no está instalado, esos tests se saltan.
+`test/navegadores.test.js` abre la maqueta en navegadores reales con `playwright-core` para lo que
+jsdom no simula, como teclear en un `<input type=date>`: Google Chrome instalado (`channel: 'chrome'`)
+y WebKit, el motor de Safari (`npx playwright-core install webkit`, una vez). Si un motor no está
+disponible, sus tests se saltan indicando el motivo.
 
 ## Enlace con un escenario
 

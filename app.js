@@ -5,6 +5,7 @@
 const $ = s => document.querySelector(s);
 const eur = Reserva.eur;
 let nochesPrevias = 1;
+let salidaElegida = '';  // la salida que puso el usuario (o la URL / por defecto), no la arrastrada
 
 
 // Solo toca la región aria-live si el texto cambia: reescribirlo igual hace que algunos lectores lo repitan.
@@ -108,6 +109,7 @@ const hoy = Reserva.hoyISO(new Date());
 $('#e').min = hoy;
 $('#e').value = Reserva.sumarDias(hoy, 1);
 $('#s').value = Reserva.sumarDias(hoy, 2);
+salidaElegida = $('#s').value;
 
 // Escenario compartido por enlace (?e=&s=&ad=&ni=&tar=&pen=). Lo inválido se ignora; las fechas
 // solo se aceptan juntas, sin entrada pasada y con la salida posterior.
@@ -116,6 +118,7 @@ if (url.e && url.s && url.e >= hoy && Reserva.contarNoches(url.e, url.s) > 0){
   $('#e').value = url.e;
   $('#s').value = url.s;
   nochesPrevias = Reserva.contarNoches(url.e, url.s);
+  salidaElegida = url.s;
 }
 if (url.ad) $('#ad').value = url.ad;
 if (url.ni) $('#ni').value = url.ni;
@@ -131,11 +134,24 @@ function fijaNoches(){
   const n = Reserva.contarNoches($('#e').value, $('#s').value);
   if (n > 0) nochesPrevias = n;
 }
+// En 'input' además de 'change': WebKit/Safari solo emite 'input' mientras se edita la fecha y deja
+// 'change' para cuando se sale del campo, así que sin esto la salida no se movería (y aparecería el
+// aviso de fechas) hasta salir. Es seguro con valores intermedios: al teclear, cada intermedio es
+// anterior al valor final, y el último evento siempre lleva el valor final.
 // Se registra antes que pinta para que el total ya salga con la salida desplazada.
-$('#e').addEventListener('change', () => {
-  $('#s').value = Reserva.ajustarSalida($('#e').value, $('#s').value, nochesPrevias);
-});
-$('#s').addEventListener('change', fijaNoches);
+// Se parte siempre de la salida ELEGIDA, no de la ya arrastrada: si un intermedio la empujó (día 12)
+// y el valor final queda antes (mes 10), vuelve a la elegida. Así el resultado no depende del camino.
+function arrastraSalida(){
+  $('#s').value = Reserva.ajustarSalida($('#e').value, salidaElegida, nochesPrevias);
+}
+function eligeSalida(){
+  salidaElegida = $('#s').value;
+  fijaNoches();
+}
+for (const tipo of ['input', 'change']){
+  $('#e').addEventListener(tipo, arrastraSalida);
+  $('#s').addEventListener(tipo, eligeSalida);
+}
 
 document.querySelectorAll('input,select').forEach(el => {
   el.addEventListener('change', pinta);

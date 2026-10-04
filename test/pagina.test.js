@@ -125,9 +125,12 @@ test('mover la entrada más allá de la salida arrastra la salida y conserva las
   assert.equal(p.$('#s').value, '2026-10-13');
   assert.equal(p.$('#aviso-fechas').hidden, true);
   assert.equal(p.$('#l-cama').textContent, 'Alojamiento · 2 personas × 3 noches');
-  // si la salida sigue siendo posterior, no se toca
+  // la salida arrastrada sigue a la entrada conservando las noches (no depende del camino)…
   p.cambiar('#e', '2026-10-11');
-  assert.equal(p.$('#s').value, '2026-10-13');
+  assert.equal(p.$('#s').value, '2026-10-14');
+  // …y la salida que eligió el usuario no se toca mientras siga siendo posterior
+  p.cambiar('#e', '2026-10-06');
+  assert.equal(p.$('#s').value, '2026-10-08');
   p.cerrar();
 });
 
@@ -290,5 +293,29 @@ test('change con valores intermedios en la entrada (como Chrome al teclear) no a
   p.cambiar('#e', '2026-10-01'); // Chrome: teclear "1" en el día ya es fecha válida y emite change
   p.cambiar('#e', '2026-10-10'); // "10"
   assert.equal(p.$('#s').value, '2026-10-13');
+  p.cerrar();
+});
+
+test('mientras se teclea la entrada (solo input, como Safari) la salida ya se arrastra', async () => {
+  const p = await abrir({ hoy: '2026-10-04' });
+  p.cambiar('#e', '2026-10-05');
+  p.cambiar('#s', '2026-10-08'); // 3 noches
+  p.teclear('#e', '2026-10-01');
+  p.teclear('#e', '2026-10-10');
+  assert.equal(p.$('#s').value, '2026-10-13');
+  assert.equal(p.$('#aviso-fechas').hidden, true);
+  p.teclear('#s', '2026-10-15'); // la salida tecleada (sin change) fija 5 noches
+  p.teclear('#e', '2026-10-20');
+  assert.equal(p.$('#s').value, '2026-10-25');
+  p.cerrar();
+});
+
+test('la salida arrastrada vuelve a la elegida si la entrada final queda antes de ella', async () => {
+  const p = await abrir({ hoy: '2026-10-04' });
+  p.cambiar('#e', '2026-11-05');
+  p.cambiar('#s', '2026-11-08');
+  p.teclear('#e', '2026-11-12'); // intermedio: empuja la salida a 11-15
+  p.teclear('#e', '2026-10-12'); // final: ya antes de la salida elegida
+  assert.equal(p.$('#s').value, '2026-11-08');
   p.cerrar();
 });
