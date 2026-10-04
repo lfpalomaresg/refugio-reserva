@@ -93,3 +93,11 @@ test('validar: entrada anterior a hoy es error "pasada"; hoy mismo vale', () => 
   assert.deepEqual(R.validar({ ...base, entrada: '2026-10-03', noches: 0 }), ['pasada']); // pasada manda
   assert.deepEqual(R.validar({ ...base, entrada: '', noches: 0 }), ['fechas']);
 });
+
+test('ajustarSalida: solo mueve la salida si ya no es posterior a la entrada', () => {
+  assert.equal(R.ajustarSalida('2026-10-10', '2026-10-08', 3), '2026-10-13');
+  assert.equal(R.ajustarSalida('2026-10-10', '2026-10-10', 2), '2026-10-12');
+  assert.equal(R.ajustarSalida('2026-10-10', '2026-10-12', 5), '2026-10-12');
+  assert.equal(R.ajustarSalida('2026-10-10', '', 0), '2026-10-11'); // sin noches previas: 1
+  assert.equal(R.ajustarSalida('', '2026-10-12', 2), '2026-10-12'); // entrada inválida: no toca
+});

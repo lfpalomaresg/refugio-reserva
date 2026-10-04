@@ -116,3 +116,28 @@ test('la salida mínima sigue a la entrada (entrada + 1 día)', async () => {
   assert.equal(p.$('#s').min, '2026-10-21');
   p.cerrar();
 });
+
+test('mover la entrada más allá de la salida arrastra la salida y conserva las noches', async () => {
+  const p = await abrir({ hoy: '2026-10-04' });
+  p.cambiar('#e', '2026-10-05');
+  p.cambiar('#s', '2026-10-08'); // 3 noches
+  p.cambiar('#e', '2026-10-10');
+  assert.equal(p.$('#s').value, '2026-10-13');
+  assert.equal(p.$('#aviso-fechas').hidden, true);
+  assert.equal(p.$('#l-cama').textContent, 'Alojamiento · 2 personas × 3 noches');
+  // si la salida sigue siendo posterior, no se toca
+  p.cambiar('#e', '2026-10-11');
+  assert.equal(p.$('#s').value, '2026-10-13');
+  p.cerrar();
+});
+
+test('los valores a medias que se teclean en la entrada no cambian las noches a conservar', async () => {
+  const p = await abrir({ hoy: '2026-10-04' });
+  p.cambiar('#e', '2026-10-05');
+  p.cambiar('#s', '2026-10-08'); // 3 noches
+  p.teclear('#e', '2026-10-01');  // estado intermedio: daría 7 noches
+  p.teclear('#e', '0002-10-10');  // año a medio escribir
+  p.cambiar('#e', '2026-10-10');
+  assert.equal(p.$('#s').value, '2026-10-13');
+  p.cerrar();
+});

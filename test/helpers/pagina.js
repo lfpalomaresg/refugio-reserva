@@ -39,12 +39,18 @@ async function abrir(opciones = {}) {
     el.value = valor;
     el.dispatchEvent(new w.Event('change', { bubbles: true }));
   };
+  // Solo 'input', sin 'change': lo que emite un date real mientras se teclea un valor a medias.
+  const teclear = (sel, valor) => {
+    const el = $(sel);
+    el.value = valor;
+    el.dispatchEvent(new w.Event('input', { bubbles: true }));
+  };
   const marcar = sel => {
     const el = $(sel);
     el.checked = true;
     el.dispatchEvent(new w.Event('change', { bubbles: true }));
   };
-  return { peticionesExternas, dom, w, d, $, cambiar, marcar, cerrar: () => w.close() };
+  return { peticionesExternas, dom, w, d, $, cambiar, teclear, marcar, cerrar: () => w.close() };
 }
 
 module.exports = { abrir };

@@ -78,7 +78,14 @@
     return errores;
   }
 
-  const API = { PRECIOS, comidaPorPersona, calcular, contarNoches, eur, cuenta, validar, hoyISO, sumarDias };
+  // Al cambiar la entrada: si la salida ya no es posterior, se desplaza conservando las noches
+  // que tenía la estancia (o 1 si no había). Si sigue siendo válida, no se toca.
+  function ajustarSalida(entrada, salida, nochesPrevias) {
+    if (diaISO(entrada) === null || contarNoches(entrada, salida) > 0) return salida;
+    return sumarDias(entrada, nochesPrevias > 0 ? nochesPrevias : 1);
+  }
+
+  const API = { PRECIOS, comidaPorPersona, calcular, contarNoches, eur, cuenta, validar, hoyISO, sumarDias, ajustarSalida };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   else root.Reserva = API;
 })(this);
