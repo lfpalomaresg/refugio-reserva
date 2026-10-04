@@ -265,11 +265,14 @@ input[aria-invalid="true"]{border-color:var(--error)}
       <div class="lin" id="l-com-fila"><span id="l-com">Media pensión · 2 personas × 1 noche</span><span id="v-com">63,00 €</span></div>
       <div class="lin suma"><span>Total</span><span id="v-tot">113,00 €</span></div>
       <p class="pago">Se paga en el refugio. Cancelación gratuita hasta 6 días antes (5 € de gestión).</p>
-      <button class="cta" type="button">Confirmar reserva</button>
-      <div class="confirmacion" id="confirmacion" role="status" hidden>
-        <p class="c1">Así quedaría la reserva</p>
-        <p id="c-resumen"></p>
-        <p class="c2">Esto es una maqueta: no se ha enviado ni guardado nada.</p>
+      <button class="cta" id="confirmar" type="button">Confirmar reserva</button>
+      <div role="status">
+        <div class="confirmacion" id="confirmacion" hidden>
+          <p class="c1">Así quedaría la reserva</p>
+          <p id="c-fechas"></p>
+          <p id="c-resumen"></p>
+          <p class="c2">Esto es una maqueta: no se ha enviado ni guardado nada.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -330,7 +333,7 @@ function pinta(){
     ? 'La entrada no puede ser anterior a hoy.'
     : 'La salida tiene que ser posterior a la entrada.';
   $('#aviso-licencia').hidden = !errores.includes('licencia');
-  $('.cta').disabled = errores.length > 0;
+  $('#confirmar').disabled = errores.length > 0;
   const malFechas = String(!!errFechas);
   $('#e').setAttribute('aria-invalid', malFechas);
   $('#s').setAttribute('aria-invalid', malFechas);
@@ -353,9 +356,11 @@ function pinta(){
 }
 
 // Maqueta: confirmar solo enseña el resumen. Nada sale del navegador.
-$('.cta').addEventListener('click', () => {
-  const lineas = [$('#l-cama').textContent];
-  if ($('#l-com-fila').style.display !== 'none') lineas.push($('#l-com').textContent);
+$('#confirmar').addEventListener('click', () => {
+  const tar = document.querySelector('input[name=tar]:checked').value;
+  $('#c-fechas').textContent = Reserva.fechaLarga($('#e').value) + ' → ' + Reserva.fechaLarga($('#s').value);
+  const lineas = [(tar === 'fed' ? 'Tarifa federado' : 'Tarifa general'), $('#l-cama').textContent + ': ' + $('#v-cama').textContent];
+  if ($('#l-com-fila').style.display !== 'none') lineas.push($('#l-com').textContent + ': ' + $('#v-com').textContent);
   $('#c-resumen').textContent = lineas.join(' · ') + ' — Total ' + $('#v-tot').textContent;
   $('#confirmacion').hidden = false;
 });

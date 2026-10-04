@@ -14,11 +14,11 @@ test('salida igual o anterior a la entrada: avisa y no deja confirmar (no cobra 
   p.cambiar('#s', '2026-09-13');
   assert.equal(p.$('#aviso-fechas').hidden, false);
   assert.match(p.$('#aviso-fechas').textContent, /posterior/);
-  assert.equal(p.$('.cta').disabled, true);
+  assert.equal(p.$('#confirmar').disabled, true);
   assert.equal(p.$('#v-tot').textContent, '—');
   p.cambiar('#s', '2026-09-17');
   assert.equal(p.$('#aviso-fechas').hidden, true);
-  assert.equal(p.$('.cta').disabled, false);
+  assert.equal(p.$('#confirmar').disabled, false);
   assert.equal(p.$('#v-tot').textContent, '226,00 €');
   p.cerrar();
 });
@@ -51,16 +51,16 @@ test('la línea de comidas dice cuántas noches cobra, igual que la de alojamien
 test('federado sin número de licencia: avisa y no deja confirmar', async () => {
   const p = await abrir();
   p.marcar('input[name=tar][value=fed]');
-  assert.equal(p.$('.cta').disabled, true);
+  assert.equal(p.$('#confirmar').disabled, true);
   assert.equal(p.$('#aviso-licencia').hidden, false);
   // el precio federado se sigue mostrando: el aviso no esconde el ahorro
   assert.equal(p.$('#v-cama').textContent, '34,00 €');
   p.cambiar('#licencia', 'AND-0000');
-  assert.equal(p.$('.cta').disabled, false);
+  assert.equal(p.$('#confirmar').disabled, false);
   assert.equal(p.$('#aviso-licencia').hidden, true);
   p.marcar('input[name=tar][value=gen]');
   p.cambiar('#licencia', '');
-  assert.equal(p.$('.cta').disabled, false);
+  assert.equal(p.$('#confirmar').disabled, false);
   assert.equal(p.$('#aviso-licencia').hidden, true);
   p.cerrar();
 });
@@ -101,7 +101,7 @@ test('entrada en el pasado: aviso propio, no deja confirmar', async () => {
   p.cambiar('#s', '2026-10-03');
   assert.equal(p.$('#aviso-fechas').hidden, false);
   assert.match(p.$('#aviso-fechas').textContent, /anterior a hoy/);
-  assert.equal(p.$('.cta').disabled, true);
+  assert.equal(p.$('#confirmar').disabled, true);
   assert.equal(p.$('#v-tot').textContent, '—');
   p.cambiar('#e', '2026-10-10');
   p.cambiar('#s', '2026-10-08');
@@ -146,7 +146,7 @@ test('Confirmar muestra el resumen de la maqueta sin enviar nada a ningún sitio
   const p = await abrir({ hoy: '2026-10-04' });
   assert.equal(p.$('#confirmacion').hidden, true);
   const antes = p.peticionesExternas.length;
-  p.$('.cta').click();
+  p.$('#confirmar').click();
   const c = p.$('#confirmacion');
   assert.equal(c.hidden, false);
   assert.match(c.textContent, /no se ha enviado/i);
@@ -156,5 +156,22 @@ test('Confirmar muestra el resumen de la maqueta sin enviar nada a ningún sitio
   // cambiar algo después invalida el resumen: no puede quedar uno con datos viejos
   p.cambiar('#ad', '3');
   assert.equal(c.hidden, true);
+  p.cerrar();
+});
+
+test('el resumen de Confirmar incluye fechas y tarifa, y vive en una región que se anuncia', async () => {
+  const p = await abrir({ hoy: '2026-10-04' });
+  const vivo = p.$('#confirmacion').parentElement;
+  assert.equal(vivo.getAttribute('role'), 'status');
+  assert.equal(vivo.hidden, false); // la región existe siempre; lo que aparece es su contenido
+  p.marcar('input[name=tar][value=fed]');
+  p.cambiar('#licencia', 'AND-0000');
+  p.marcar('input[name=pen][value="0"]');
+  p.$('#confirmar').click();
+  const txt = p.$('#confirmacion').textContent;
+  assert.match(txt, /lunes 5 de octubre → martes 6 de octubre/);
+  assert.match(txt, /Tarifa federado/);
+  assert.match(txt, /34,00 €/);
+  assert.doesNotMatch(txt, /pensión/); // solo dormir: sin línea de comidas
   p.cerrar();
 });

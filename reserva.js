@@ -85,7 +85,19 @@
     return sumarDias(entrada, nochesPrevias > 0 ? nochesPrevias : 1);
   }
 
-  const API = { PRECIOS, comidaPorPersona, calcular, contarNoches, eur, cuenta, validar, hoyISO, sumarDias, ajustarSalida };
+  const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+  const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto',
+    'septiembre', 'octubre', 'noviembre', 'diciembre'];
+
+  // 'lunes 5 de octubre'. Tablas propias: no depende del idioma del navegador. '' si no es válida.
+  function fechaLarga(iso) {
+    const t = diaISO(iso);
+    if (t === null) return '';
+    const d = new Date(t * 86400000);
+    return DIAS[d.getUTCDay()] + ' ' + d.getUTCDate() + ' de ' + MESES[d.getUTCMonth()];
+  }
+
+  const API = { PRECIOS, comidaPorPersona, calcular, contarNoches, eur, cuenta, validar, hoyISO, sumarDias, ajustarSalida, fechaLarga };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   else root.Reserva = API;
 })(this);

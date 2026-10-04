@@ -101,3 +101,10 @@ test('ajustarSalida: solo mueve la salida si ya no es posterior a la entrada', (
   assert.equal(R.ajustarSalida('2026-10-10', '', 0), '2026-10-11'); // sin noches previas: 1
   assert.equal(R.ajustarSalida('', '2026-10-12', 2), '2026-10-12'); // entrada inválida: no toca
 });
+
+test('fechaLarga escribe la fecha en castellano, sin depender del idioma del navegador', () => {
+  assert.equal(R.fechaLarga('2026-10-05'), 'lunes 5 de octubre');
+  assert.equal(R.fechaLarga('2027-01-01'), 'viernes 1 de enero');
+  assert.equal(R.fechaLarga('2028-02-29'), 'martes 29 de febrero');
+  assert.equal(R.fechaLarga('basura'), '');
+});
