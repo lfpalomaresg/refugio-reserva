@@ -1,3 +1,15 @@
+/* Montserrat servida desde el propio sitio (subconjunto latin de @fontsource/montserrat 5.3.0,
+   licencia SIL OFL 1.1 en fuentes/OFL-Montserrat.txt): sin peticiones a Google, la visita no
+   le envía su IP. */
+@font-face{font-family:Montserrat; font-style:normal; font-weight:400; font-display:swap;
+  src:url(fuentes/montserrat-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:Montserrat; font-style:normal; font-weight:500; font-display:swap;
+  src:url(fuentes/montserrat-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:Montserrat; font-style:normal; font-weight:600; font-display:swap;
+  src:url(fuentes/montserrat-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:Montserrat; font-style:normal; font-weight:700; font-display:swap;
+  src:url(fuentes/montserrat-latin-700-normal.woff2) format('woff2')}
+
 /* Paleta tomada de la web real del refugio (variables globales de su tema):
    ámbar #DCA54A, crema #FAF5E5, slate #0F172A, gris #4A4A4A, crema saturado #F0E6C5,
    negro cálido #141004. Tipografía Montserrat, la suya. La maqueta usa su identidad

@@ -52,12 +52,16 @@ async function enNavegador(t, motor, query, prueba) {
     const pagina = await contexto.newPage();
     const errores = [];
     pagina.on('pageerror', e => errores.push(e));
+    pagina.on('console', m => { if (m.type() === 'error') errores.push(m.text()); }); // p.ej. CSP
+    const externas = [];
+    pagina.on('request', r => { if (!r.url().startsWith('http://127.0.0.1:')) externas.push(r.url()); });
     // Fuera de la red: solo se sirve el repo local.
     await pagina.route(u => !u.href.startsWith('http://127.0.0.1:'), r => r.fulfill({ status: 200, body: '' }));
     await pagina.clock.setFixedTime(new Date('2026-10-04T12:00:00+02:00'));
     await pagina.goto(`http://127.0.0.1:${servidor.address().port}/index.html${query}`);
     await prueba(pagina);
     assert.deepEqual(errores, []);
+    assert.deepEqual(externas, [], 'peticiones fuera del propio sitio');
   } finally {
     if (servidor) servidor.close();
     await navegador.close();
@@ -97,5 +101,18 @@ for (const motor of Object.keys(MOTORES)) {
       await pagina.keyboard.type('12/10/2026');
       assert.equal(await pagina.inputValue('#e'), '2026-10-12');
       assert.equal(await pagina.inputValue('#s'), '2026-11-08', 'igual que si se hubiera tecleado 12/10 de golpe');
+    }));
+
+  test(`${motor}: Montserrat carga desde el propio sitio en los cuatro pesos`, t =>
+    enNavegador(t, motor, '', async pagina => {
+      const cargadas = await pagina.evaluate(async () => {
+        await Promise.all(['400', '500', '600', '700'].map(w => document.fonts.load(w + ' 16px Montserrat')));
+        await document.fonts.ready;
+        return ['400', '500', '600', '700'].filter(w => document.fonts.check(w + ' 16px Montserrat'));
+      });
+      assert.deepEqual(cargadas, ['400', '500', '600', '700']);
+      const pesos = await pagina.evaluate(() => [...document.fonts]
+        .filter(f => /Montserrat/.test(f.family) && f.status === 'loaded').map(f => f.weight).sort());
+      assert.deepEqual(pesos, ['400', '500', '600', '700'], 'las cuatro @font-face propias deben cargar');
     }));
 }

@@ -319,3 +319,9 @@ test('la salida arrastrada vuelve a la elegida si la entrada final queda antes d
   assert.equal(p.$('#s').value, '2026-11-08');
   p.cerrar();
 });
+
+test('al abrir la página no se hace ninguna petición fuera del propio sitio', async () => {
+  const p = await abrir();
+  assert.deepEqual(p.peticionesExternas, []);
+  p.cerrar();
+});

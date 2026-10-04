@@ -33,12 +33,12 @@ function csp() {
   return dirs;
 }
 
-test('CSP estricta: scripts y estilos solo propios (más Google Fonts), sin unsafe-*', () => {
+test('CSP estricta: scripts, estilos y fuentes solo propios, sin unsafe-*', () => {
   const d = csp();
   assert.deepEqual(d['default-src'], ["'none'"]);
   assert.deepEqual(d['script-src'], ["'self'"]);
-  assert.deepEqual(d['style-src'], ["'self'", 'https://fonts.googleapis.com']);
-  assert.deepEqual(d['font-src'], ['https://fonts.gstatic.com']);
+  assert.deepEqual(d['style-src'], ["'self'"]);
+  assert.deepEqual(d['font-src'], ["'self'"]);
   assert.deepEqual(d['form-action'], ["'none'"]);
   assert.deepEqual(d['base-uri'], ["'none'"]);
   assert.ok(!/unsafe-/.test(JSON.stringify(d)));
@@ -58,4 +58,18 @@ test('la maqueta sigue fuera de buscadores y avisa si no hay JavaScript', () => 
   const ns = new JSDOM(html, { runScripts: undefined }).window.document.querySelector('noscript');
   assert.ok(ns, 'falta <noscript>');
   assert.match(ns.textContent, /JavaScript/);
+});
+
+test('ningún recurso de terceros: la visita no envía su IP a nadie (fuentes servidas desde el repo)', () => {
+  for (const el of doc.querySelectorAll('[src], link[href]')) {
+    const url = el.getAttribute('src') || el.getAttribute('href');
+    assert.ok(!/^(https?:)?\/\//.test(url), 'recurso externo: ' + url);
+  }
+  const css = fs.readFileSync(path.join(__dirname, '..', 'estilos.css'), 'utf8');
+  const fuentes = [...css.matchAll(/url\(([^)]+)\)/g)].map(m => m[1].replace(/["']/g, ''));
+  assert.ok(fuentes.length >= 4, 'faltan las @font-face de Montserrat (400, 500, 600, 700)');
+  for (const f of fuentes) {
+    assert.ok(!/^(https?:)?\/\//.test(f), 'fuente externa: ' + f);
+    assert.ok(fs.existsSync(path.join(__dirname, '..', f)), 'no existe ' + f);
+  }
 });
