@@ -197,3 +197,47 @@ test('con tarifa federada aparece la línea de ahorro; con general, no', async (
   assert.equal(p.$('#l-ahorro-fila').hidden, true);
   p.cerrar();
 });
+
+test('abre con el escenario de la URL (enlace compartible)', async () => {
+  const p = await abrir({ hoy: '2026-10-04', query: '?e=2026-10-10&s=2026-10-12&ad=3&ni=1&tar=fed&pen=cp' });
+  assert.equal(p.$('#e').value, '2026-10-10');
+  assert.equal(p.$('#s').value, '2026-10-12');
+  assert.equal(p.$('#ad').value, '3');
+  assert.equal(p.$('#ni').value, '1');
+  assert.equal(p.$('input[name=tar][value=fed]').checked, true);
+  assert.equal(p.$('input[name=pen][value=cp]').checked, true);
+  // cama (3×17 + 6) × 2 = 114 · comidas 40,50 × 4 × 2 = 324
+  assert.equal(p.$('#v-tot').textContent, '438,00 €');
+  p.cerrar();
+});
+
+test('URL con fechas pasadas o basura: se ignoran y quedan las de por defecto', async () => {
+  const p = await abrir({ hoy: '2026-10-04', query: '?e=2026-09-01&s=2026-09-03&ad=99&tar=vip' });
+  assert.equal(p.$('#e').value, '2026-10-05');
+  assert.equal(p.$('#s').value, '2026-10-06');
+  assert.equal(p.$('#ad').value, '2');
+  assert.equal(p.$('input[name=tar][value=gen]').checked, true);
+  p.cerrar();
+});
+
+test('cada cambio actualiza la URL, que nunca lleva la licencia', async () => {
+  const p = await abrir({ hoy: '2026-10-04' });
+  p.cambiar('#ad', '4');
+  p.marcar('input[name=tar][value=fed]');
+  p.cambiar('#licencia', 'AND-0000');
+  const q = new URLSearchParams(p.w.location.search);
+  assert.equal(q.get('ad'), '4');
+  assert.equal(q.get('tar'), 'fed');
+  assert.equal(q.get('e'), '2026-10-05');
+  assert.doesNotMatch(p.w.location.href, /AND-0000|licencia/);
+  p.cerrar();
+});
+
+test('URL con solo la entrada, o con salida no posterior: fechas por defecto', async () => {
+  for (const query of ['?e=2026-10-10', '?e=2026-10-10&s=2026-10-10']) {
+    const p = await abrir({ hoy: '2026-10-04', query });
+    assert.equal(p.$('#e').value, '2026-10-05', query);
+    assert.equal(p.$('#s').value, '2026-10-06', query);
+    p.cerrar();
+  }
+});

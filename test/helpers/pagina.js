@@ -1,6 +1,12 @@
-// Carga index.html en jsdom ejecutando sus scripts. Solo se cargan recursos locales (file:);
-// cualquier petición de red (fuentes, etc.) se descarta: los tests nunca salen a internet.
+// Carga index.html en jsdom ejecutando sus scripts, servida bajo un origen http ficticio
+// (como en GitHub Pages: history.replaceState no funciona en file:). Los ficheros de ese origen
+// se leen del repo; cualquier otra petición (fuentes, etc.) se descarta y se registra:
+// los tests nunca salen a internet.
 const path = require('node:path');
+const fs = require('node:fs');
+
+const RAIZ = path.join(__dirname, '..', '..');
+const ORIGEN = 'http://refugio.test/';
 const { JSDOM, requestInterceptor } = require('jsdom');
 
 // Fija "hoy" (hora local, a mediodía) para que los tests no dependan del día en que se ejecutan.
@@ -18,11 +24,17 @@ function congelarReloj(window, hoyISO) {
 async function abrir(opciones = {}) {
   const peticionesExternas = [];
   const soloLocal = requestInterceptor(request => {
-    if (request.url.startsWith('file:')) return undefined;
+    if (request.url.startsWith(ORIGEN)) {
+      const ruta = path.join(RAIZ, new URL(request.url).pathname);
+      if (!ruta.startsWith(RAIZ + path.sep) || !fs.existsSync(ruta)) return new Response('', { status: 404 });
+      const tipo = ruta.endsWith('.js') ? 'text/javascript' : 'text/plain';
+      return new Response(fs.readFileSync(ruta), { headers: { 'Content-Type': tipo } });
+    }
     peticionesExternas.push(request.url);
     return new Response('', { status: 204 });
   });
-  const dom = await JSDOM.fromFile(path.join(__dirname, '..', '..', 'index.html'), {
+  const dom = await JSDOM.fromFile(path.join(RAIZ, 'index.html'), {
+    url: ORIGEN + 'index.html' + (opciones.query || ''),
     runScripts: 'dangerously',
     resources: { interceptors: [soloLocal] },
     pretendToBeVisual: true,

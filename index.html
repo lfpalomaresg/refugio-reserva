@@ -310,8 +310,19 @@ const eur = Reserva.eur;
 let nochesPrevias = 1;
 
 
+// La URL refleja el escenario para poder compartirlo. Nunca incluye la licencia.
+function guardaEnUrl(){
+  const q = Reserva.escribirEstado({
+    e: $('#e').value, s: $('#s').value, ad: $('#ad').value, ni: $('#ni').value,
+    tar: document.querySelector('input[name=tar]:checked').value,
+    pen: document.querySelector('input[name=pen]:checked').value
+  });
+  try { history.replaceState(null, '', location.pathname + q + location.hash); } catch (e) { /* file:// o límite de llamadas (Safari): la URL deja de actualizarse, nada más */ }
+}
+
 function pinta(){
   $('#confirmacion').hidden = true;
+  guardaEnUrl();
   const tar = document.querySelector('input[name=tar]:checked').value;
   const pen = document.querySelector('input[name=pen]:checked').value;
   const p = Reserva.PRECIOS[tar];
@@ -380,6 +391,20 @@ const hoy = Reserva.hoyISO(new Date());
 $('#e').min = hoy;
 $('#e').value = Reserva.sumarDias(hoy, 1);
 $('#s').value = Reserva.sumarDias(hoy, 2);
+
+// Escenario compartido por enlace (?e=&s=&ad=&ni=&tar=&pen=). Lo inválido se ignora; las fechas
+// solo se aceptan juntas, sin entrada pasada y con la salida posterior.
+const url = Reserva.leerEstado(location.search);
+if (url.e && url.s && url.e >= hoy && Reserva.contarNoches(url.e, url.s) > 0){
+  $('#e').value = url.e;
+  $('#s').value = url.s;
+  nochesPrevias = Reserva.contarNoches(url.e, url.s);
+}
+if (url.ad) $('#ad').value = url.ad;
+if (url.ni) $('#ni').value = url.ni;
+document.querySelectorAll('input[name=tar], input[name=pen]').forEach(r => {
+  if (url[r.name] === r.value) r.checked = true;
+});
 
 // Noches de la estancia "confirmada": solo se recalculan en 'change' (valor final), nunca en 'input',
 // que un date real emite con valores a medio teclear.
