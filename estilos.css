@@ -1,0 +1,152 @@
+/* Paleta tomada de la web real del refugio (variables globales de su tema):
+   ámbar #DCA54A, crema #FAF5E5, slate #0F172A, gris #4A4A4A, crema saturado #F0E6C5,
+   negro cálido #141004. Tipografía Montserrat, la suya. La maqueta usa su identidad
+   a propósito: tiene que leerse como "esto es lo tuyo", no como un diseño de fuera. */
+:root{
+  --ambar:#DCA54A; --ambar-h:#C79038;
+  --crema:#FAF5E5; --crema-2:#F0E6C5;
+  --tinta:#0F172A; --tinta-2:#4A4A4A;
+  --papel:#FFFFFF; --linea:#E3D9BE;
+  --ok:#2F6B46; --error:#A6361F; --sombra:0 1px 2px rgba(20,16,4,.06), 0 8px 24px rgba(20,16,4,.07);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ambar:#E5B463; --ambar-h:#F0C27B;
+    --crema:#141004; --crema-2:#1F1809;
+    --tinta:#F5EFE0; --tinta-2:#B8AE97;
+    --papel:#1B1509; --linea:#332913;
+    --ok:#7FC79A; --error:#F0907A; --sombra:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --ambar:#E5B463; --ambar-h:#F0C27B;
+  --crema:#141004; --crema-2:#1F1809;
+  --tinta:#F5EFE0; --tinta-2:#B8AE97;
+  --papel:#1B1509; --linea:#332913;
+  --ok:#7FC79A; --error:#F0907A; --sombra:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--crema); color:var(--tinta);
+  font:400 16px/1.55 Montserrat,"Helvetica Neue",Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.cinta{
+  background:var(--tinta); color:var(--crema); font-size:.76rem; font-weight:600;
+  letter-spacing:.09em; text-transform:uppercase; text-align:center;
+  padding:9px 16px;
+}
+.cinta span{opacity:.72; font-weight:500; letter-spacing:.04em; text-transform:none}
+.marco{max-width:920px; margin:0 auto; padding:26px 18px 72px}
+
+.cab{display:flex; align-items:center; gap:13px; margin:8px 0 26px}
+.logo{
+  width:42px; height:42px; border-radius:9px; flex:0 0 auto;
+  background:linear-gradient(160deg,var(--ambar),var(--ambar-h));
+  display:grid; place-items:center; color:#1B1509; font-weight:700; font-size:.95rem;
+}
+.cab h1{font-size:1.06rem; font-weight:700; margin:0; letter-spacing:-.01em}
+.cab p{margin:1px 0 0; font-size:.83rem; color:var(--tinta-2)}
+
+.tarjeta{
+  background:var(--papel); border:1px solid var(--linea); border-radius:14px;
+  box-shadow:var(--sombra); overflow:hidden;
+}
+.tarjeta > header{
+  padding:18px 22px; border-bottom:1px solid var(--linea);
+  display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap;
+}
+.tarjeta > header h2{margin:0; font-size:1.12rem; font-weight:700; letter-spacing:-.01em}
+.paso{font-size:.74rem; font-weight:600; color:var(--tinta-2); letter-spacing:.06em; text-transform:uppercase}
+.cuerpo{padding:22px; display:flex; flex-direction:column; gap:22px}
+
+.campo > .et{
+  display:block; font-size:.73rem; font-weight:700; letter-spacing:.07em;
+  text-transform:uppercase; color:var(--tinta-2); margin-bottom:9px;
+}
+.fila{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+@media (max-width:560px){ .fila{grid-template-columns:1fr} }
+
+input[type=date], select{
+  width:100%; font:inherit; font-size:.95rem; padding:11px 12px; color:var(--tinta);
+  background:var(--crema); border:1px solid var(--linea); border-radius:9px;
+}
+input[type=text]{
+  width:100%; font:inherit; font-size:.95rem; padding:11px 12px; color:var(--tinta);
+  background:var(--crema); border:1px solid var(--linea); border-radius:9px;
+}
+input[aria-invalid="true"]{border-color:var(--error)}
+:focus-visible{outline:2.5px solid var(--ambar); outline-offset:2px}
+
+/* opciones tipo tarjeta: la tarifa y la pensión son ELECCIONES, no desplegables escondidos */
+.ops{display:flex; flex-direction:column; gap:9px}
+.op{
+  display:flex; align-items:flex-start; gap:12px; padding:13px 14px; cursor:pointer;
+  border:1.5px solid var(--linea); border-radius:11px; background:var(--crema);
+  transition:border-color .12s ease, background .12s ease;
+}
+.op:hover{border-color:var(--ambar)}
+.op input{margin:3px 0 0; accent-color:var(--ambar); width:17px; height:17px; flex:0 0 auto}
+.op .txt{flex:1; min-width:0}
+.op .t1{font-weight:600; font-size:.95rem; display:flex; justify-content:space-between; gap:10px}
+.op .t2{font-size:.82rem; color:var(--tinta-2); margin-top:2px}
+.op .eur{font-variant-numeric:tabular-nums; white-space:nowrap; font-weight:700}
+.op:has(input:checked){border-color:var(--ambar); background:var(--crema-2)}
+.op:has(input:checked) .eur{color:var(--ambar-h)}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .op:has(input:checked) .eur{color:var(--ambar)}
+}
+
+.aviso{margin:-12px 0 0; font-size:.85rem; font-weight:600; color:var(--error)}
+.aviso[hidden]{display:none}
+.cta:disabled, .cta:disabled:hover{opacity:.5; cursor:not-allowed; background:var(--ambar)}
+
+.licencia{margin-top:10px; padding-left:29px}
+.licencia[hidden]{display:none}
+.licencia .aviso{margin:6px 0 0}
+.licencia small{display:block; margin-top:6px; font-size:.78rem; color:var(--tinta-2)}
+
+.total{
+  border-top:1px solid var(--linea); background:var(--crema-2);
+  padding:18px 22px; display:flex; flex-direction:column; gap:7px;
+}
+.lin{display:flex; justify-content:space-between; font-size:.9rem; color:var(--tinta-2)}
+.lin span:last-child{font-variant-numeric:tabular-nums}
+.lin.ahorro{color:var(--ok); font-weight:600}
+.lin[hidden]{display:none}
+.lin.suma{
+  color:var(--tinta); font-weight:700; font-size:1.16rem; padding-top:9px;
+  border-top:1px solid var(--linea); margin-top:4px;
+}
+.solo-lector{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap}
+.pago{font-size:.8rem; color:var(--tinta-2); margin:2px 0 0}
+.cta{
+  display:block; width:100%; margin-top:12px; padding:14px; border:0; border-radius:10px;
+  background:var(--ambar); color:#1B1509; font:inherit; font-weight:700; font-size:1rem;
+  cursor:pointer; transition:background .12s ease;
+}
+.cta:hover{background:var(--ambar-h)}
+
+.confirmacion{margin-top:12px; padding:12px 14px; border:1.5px dashed var(--ambar); border-radius:10px;
+  background:var(--papel); font-size:.88rem}
+.confirmacion[hidden]{display:none}
+.confirmacion p{margin:0}
+.confirmacion .c1{font-weight:700; margin-bottom:4px}
+.confirmacion .c2{margin-top:6px; color:var(--tinta-2); font-size:.8rem}
+
+.nota{
+  margin-top:30px; border-left:3px solid var(--ambar); padding:2px 0 2px 16px;
+  font-size:.93rem; color:var(--tinta-2); max-width:64ch;
+}
+.nota b{color:var(--tinta)}
+.cambia{margin-top:34px}
+.cambia h3{font-size:.76rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--tinta-2); margin:0 0 14px}
+.cambia ul{list-style:none; margin:0; padding:0; display:grid; gap:11px}
+.cambia li{display:flex; gap:11px; align-items:flex-start; font-size:.93rem; max-width:66ch}
+.cambia .tick{color:var(--ok); font-weight:700; flex:0 0 auto; line-height:1.55}
+.pie{margin-top:34px; padding-top:16px; border-top:1px solid var(--linea);
+  font-size:.8rem; color:var(--tinta-2); max-width:66ch}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.aviso-js{margin:0 0 18px; padding:10px 14px; border:1.5px solid var(--ambar); border-radius:10px; font-size:.88rem}

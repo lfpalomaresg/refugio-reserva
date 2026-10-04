@@ -21,3 +21,41 @@ test('no hay JavaScript inline: todo script es un fichero propio (permite CSP si
     for (const a of el.attributes) assert.ok(!/^on/i.test(a.name), `manejador inline ${a.name} en <${el.localName}>`);
   }
 });
+
+function csp() {
+  const meta = doc.querySelector('meta[http-equiv="Content-Security-Policy"]');
+  assert.ok(meta, 'falta la CSP');
+  const dirs = {};
+  for (const parte of meta.content.split(';')) {
+    const [nombre, ...valores] = parte.trim().split(/\s+/);
+    if (nombre) dirs[nombre] = valores;
+  }
+  return dirs;
+}
+
+test('CSP estricta: scripts y estilos solo propios (más Google Fonts), sin unsafe-*', () => {
+  const d = csp();
+  assert.deepEqual(d['default-src'], ["'none'"]);
+  assert.deepEqual(d['script-src'], ["'self'"]);
+  assert.deepEqual(d['style-src'], ["'self'", 'https://fonts.googleapis.com']);
+  assert.deepEqual(d['font-src'], ['https://fonts.gstatic.com']);
+  assert.deepEqual(d['form-action'], ["'none'"]);
+  assert.deepEqual(d['base-uri'], ["'none'"]);
+  assert.ok(!/unsafe-/.test(JSON.stringify(d)));
+});
+
+test('sin CSS inline (lo exige la CSP) y la hoja propia existe', () => {
+  assert.equal(doc.querySelectorAll('style').length, 0);
+  assert.equal(doc.querySelectorAll('[style]').length, 0);
+  const hojas = [...doc.querySelectorAll('link[rel=stylesheet]')].map(l => l.getAttribute('href'));
+  const propias = hojas.filter(h => !/^https:/.test(h));
+  assert.ok(propias.length > 0);
+  for (const h of propias) assert.ok(fs.existsSync(path.join(__dirname, '..', h)), 'no existe ' + h);
+});
+
+test('la maqueta sigue fuera de buscadores y avisa si no hay JavaScript', () => {
+  assert.match(doc.querySelector('meta[name=robots]').content, /noindex/);
+  const ns = new JSDOM(html, { runScripts: undefined }).window.document.querySelector('noscript');
+  assert.ok(ns, 'falta <noscript>');
+  assert.match(ns.textContent, /JavaScript/);
+});

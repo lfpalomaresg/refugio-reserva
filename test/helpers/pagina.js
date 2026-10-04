@@ -28,7 +28,7 @@ async function abrir(opciones = {}) {
     if (request.url.startsWith(ORIGEN)) {
       const ruta = path.join(RAIZ, new URL(request.url).pathname);
       if (!ruta.startsWith(RAIZ + path.sep) || !fs.existsSync(ruta)) return new Response('', { status: 404 });
-      const tipo = ruta.endsWith('.js') ? 'text/javascript' : 'text/plain';
+      const tipo = ruta.endsWith('.js') ? 'text/javascript' : ruta.endsWith('.css') ? 'text/css' : 'text/plain';
       return new Response(fs.readFileSync(ruta), { headers: { 'Content-Type': tipo } });
     }
     peticionesExternas.push(request.url);
