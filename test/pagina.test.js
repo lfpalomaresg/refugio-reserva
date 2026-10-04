@@ -47,3 +47,20 @@ test('la línea de comidas dice cuántas noches cobra, igual que la de alojamien
   assert.equal(p.$('#l-com').textContent, 'Media pensión y picnic · 1 persona × 3 noches');
   p.cerrar();
 });
+
+test('federado sin número de licencia: avisa y no deja confirmar', async () => {
+  const p = await abrir();
+  p.marcar('input[name=tar][value=fed]');
+  assert.equal(p.$('.cta').disabled, true);
+  assert.equal(p.$('#aviso-licencia').hidden, false);
+  // el precio federado se sigue mostrando: el aviso no esconde el ahorro
+  assert.equal(p.$('#v-cama').textContent, '34,00 €');
+  p.cambiar('#licencia', 'AND-0000');
+  assert.equal(p.$('.cta').disabled, false);
+  assert.equal(p.$('#aviso-licencia').hidden, true);
+  p.marcar('input[name=tar][value=gen]');
+  p.cambiar('#licencia', '');
+  assert.equal(p.$('.cta').disabled, false);
+  assert.equal(p.$('#aviso-licencia').hidden, true);
+  p.cerrar();
+});

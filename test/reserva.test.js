@@ -54,3 +54,17 @@ test('cuenta: número con singular o plural', () => {
   assert.equal(R.cuenta(3, 'noche', 'noches'), '3 noches');
   assert.equal(R.cuenta(1, 'persona', 'personas'), '1 persona');
 });
+
+test('validar: reserva general con fechas correctas no tiene errores', () => {
+  assert.deepEqual(R.validar({ tarifa: 'gen', licencia: '', noches: 2 }), []);
+});
+
+test('validar: federado sin licencia (o solo espacios) es error; con licencia, no', () => {
+  assert.deepEqual(R.validar({ tarifa: 'fed', licencia: '', noches: 1 }), ['licencia']);
+  assert.deepEqual(R.validar({ tarifa: 'fed', licencia: '   ', noches: 1 }), ['licencia']);
+  assert.deepEqual(R.validar({ tarifa: 'fed', licencia: 'AND-0000', noches: 1 }), []);
+});
+
+test('validar: sin noches válidas es error de fechas', () => {
+  assert.deepEqual(R.validar({ tarifa: 'fed', licencia: '', noches: 0 }), ['fechas', 'licencia']);
+});

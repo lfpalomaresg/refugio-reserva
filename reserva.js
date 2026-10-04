@@ -52,7 +52,15 @@
     return n + ' ' + (n === 1 ? singular : plural);
   }
 
-  const API = { PRECIOS, comidaPorPersona, calcular, contarNoches, eur, cuenta };
+  // Qué impide confirmar la reserva. Lista vacía = se puede confirmar.
+  function validar({ tarifa, licencia, noches }) {
+    const errores = [];
+    if (!(noches > 0)) errores.push('fechas');
+    if (tarifa === 'fed' && !String(licencia || '').trim()) errores.push('licencia');
+    return errores;
+  }
+
+  const API = { PRECIOS, comidaPorPersona, calcular, contarNoches, eur, cuenta, validar };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   else root.Reserva = API;
 })(this);

@@ -118,6 +118,7 @@ input[type=text]{
 
 .licencia{margin-top:10px; padding-left:29px}
 .licencia[hidden]{display:none}
+.licencia .aviso{margin:6px 0 0}
 .licencia small{display:block; margin-top:6px; font-size:.78rem; color:var(--tinta-2)}
 
 .total{
@@ -216,7 +217,8 @@ input[type=text]{
           </label>
         </div>
         <div class="licencia" id="lic" hidden>
-          <input type="text" placeholder="Número de licencia federativa" aria-label="Número de licencia federativa">
+          <input type="text" id="licencia" placeholder="Número de licencia federativa" aria-label="Número de licencia federativa">
+          <p class="aviso" id="aviso-licencia" role="alert" hidden>Escribe el número de licencia para aplicar la tarifa de federado.</p>
           <small>Se comprueba al llegar. Sin número no se puede aplicar la tarifa reducida.</small>
         </div>
       </div>
@@ -303,10 +305,11 @@ function pinta(){
   $('#p-md').textContent = '+' + eur(Reserva.comidaPorPersona(p, 'md'));
   $('#p-cp').textContent = '+' + eur(Reserva.comidaPorPersona(p, 'cp'));
 
-  const fechasOk = n > 0;
-  $('#aviso-fechas').hidden = fechasOk;
-  $('.cta').disabled = !fechasOk;
-  if (!fechasOk){
+  const errores = Reserva.validar({tarifa:tar, licencia:$('#licencia').value, noches:n});
+  $('#aviso-fechas').hidden = !errores.includes('fechas');
+  $('#aviso-licencia').hidden = !errores.includes('licencia');
+  $('.cta').disabled = errores.length > 0;
+  if (errores.includes('fechas')){
     $('#v-cama').textContent = $('#v-com').textContent = $('#v-tot').textContent = '—';
     return;
   }
