@@ -39,7 +39,15 @@
     return b - a;
   }
 
-  const API = { PRECIOS, comidaPorPersona, calcular, contarNoches };
+  // Importe en euros con formato español fijo: punto de miles (también con 4 cifras) y coma decimal.
+  function eur(n) {
+    const centimos = Math.round(Math.abs(n) * 100);
+    const enteros = String(Math.floor(centimos / 100)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    const dec = String(centimos % 100).padStart(2, '0');
+    return (n < 0 && centimos ? '-' : '') + enteros + ',' + dec + ' €';
+  }
+
+  const API = { PRECIOS, comidaPorPersona, calcular, contarNoches, eur };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   else root.Reserva = API;
 })(this);

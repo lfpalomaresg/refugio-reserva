@@ -39,3 +39,12 @@ test('contarNoches devuelve 0 si la salida no es posterior o falta una fecha', (
   assert.equal(R.contarNoches('2026-09-12', 'basura'), 0);
   assert.equal(R.contarNoches('2026-02-30', '2026-03-02'), 0); // fecha imposible
 });
+
+test('eur agrupa miles siempre (es-ES no agrupa 4 cifras con toLocaleString)', () => {
+  assert.equal(R.eur(0), '0,00 €');
+  assert.equal(R.eur(31.5), '31,50 €');
+  assert.equal(R.eur(1228), '1.228,00 €');
+  assert.equal(R.eur(12500.5), '12.500,50 €');
+  assert.equal(R.eur(-5), '-5,00 €');
+  assert.equal(R.eur(-0), '0,00 €');
+});

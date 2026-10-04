@@ -285,7 +285,7 @@ input[type=text]{
 <script src="reserva.js"></script>
 <script>
 const $ = s => document.querySelector(s);
-const eur = n => n.toLocaleString('es-ES',{minimumFractionDigits:2, maximumFractionDigits:2}) + ' €';
+const eur = Reserva.eur;
 
 
 function pinta(){
