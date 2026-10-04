@@ -80,3 +80,16 @@ test('sumarDias cruza meses, años y febrero bisiesto', () => {
   assert.equal(R.sumarDias('2028-02-28', 1), '2028-02-29');
   assert.equal(R.sumarDias('2026-03-01', -1), '2026-02-28');
 });
+
+test('sumarDias con fecha inválida devuelve null (no una fecha de 1970)', () => {
+  assert.equal(R.sumarDias('basura', 1), null);
+  assert.equal(R.sumarDias('', 1), null);
+});
+
+test('validar: entrada anterior a hoy es error "pasada"; hoy mismo vale', () => {
+  const base = { tarifa: 'gen', licencia: '', noches: 1, hoy: '2026-10-04' };
+  assert.deepEqual(R.validar({ ...base, entrada: '2026-10-03' }), ['pasada']);
+  assert.deepEqual(R.validar({ ...base, entrada: '2026-10-04' }), []);
+  assert.deepEqual(R.validar({ ...base, entrada: '2026-10-03', noches: 0 }), ['pasada']); // pasada manda
+  assert.deepEqual(R.validar({ ...base, entrada: '', noches: 0 }), ['fechas']);
+});

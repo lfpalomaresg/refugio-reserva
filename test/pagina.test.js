@@ -94,3 +94,25 @@ test('las fechas por defecto son mañana y pasado, nunca un día ya pasado', asy
   assert.equal(p.$('#v-tot').textContent, '113,00 €');
   p.cerrar();
 });
+
+test('entrada en el pasado: aviso propio, no deja confirmar', async () => {
+  const p = await abrir({ hoy: '2026-10-04' });
+  p.cambiar('#e', '2026-10-01');
+  p.cambiar('#s', '2026-10-03');
+  assert.equal(p.$('#aviso-fechas').hidden, false);
+  assert.match(p.$('#aviso-fechas').textContent, /anterior a hoy/);
+  assert.equal(p.$('.cta').disabled, true);
+  assert.equal(p.$('#v-tot').textContent, '—');
+  p.cambiar('#e', '2026-10-10');
+  p.cambiar('#s', '2026-10-08');
+  assert.match(p.$('#aviso-fechas').textContent, /posterior/);
+  p.cerrar();
+});
+
+test('la salida mínima sigue a la entrada (entrada + 1 día)', async () => {
+  const p = await abrir({ hoy: '2026-10-04' });
+  assert.equal(p.$('#s').min, '2026-10-06');
+  p.cambiar('#e', '2026-10-20');
+  assert.equal(p.$('#s').min, '2026-10-21');
+  p.cerrar();
+});

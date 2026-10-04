@@ -39,9 +39,11 @@
     return d.getFullYear() + '-' + dos(d.getMonth() + 1) + '-' + dos(d.getDate());
   }
 
-  // 'YYYY-MM-DD' + n días (n puede ser negativo).
+  // 'YYYY-MM-DD' + n días (n puede ser negativo); null si la fecha no es válida.
   function sumarDias(iso, n) {
-    const d = new Date((diaISO(iso) + n) * 86400000);
+    const base = diaISO(iso);
+    if (base === null) return null;
+    const d = new Date((base + n) * 86400000);
     return d.getUTCFullYear() + '-' + dos(d.getUTCMonth() + 1) + '-' + dos(d.getUTCDate());
   }
 
@@ -66,9 +68,12 @@
   }
 
   // Qué impide confirmar la reserva. Lista vacía = se puede confirmar.
-  function validar({ tarifa, licencia, noches }) {
+  // Con entrada y hoy (ambos ISO) también rechaza llegar en un día ya pasado.
+  function validar({ tarifa, licencia, noches, entrada, hoy }) {
     const errores = [];
-    if (!(noches > 0)) errores.push('fechas');
+    const a = diaISO(entrada), h = diaISO(hoy);
+    if (a !== null && h !== null && a < h) errores.push('pasada');
+    else if (!(noches > 0)) errores.push('fechas');
     if (tarifa === 'fed' && !String(licencia || '').trim()) errores.push('licencia');
     return errores;
   }

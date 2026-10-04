@@ -306,15 +306,22 @@ function pinta(){
   $('#p-md').textContent = '+' + eur(Reserva.comidaPorPersona(p, 'md'));
   $('#p-cp').textContent = '+' + eur(Reserva.comidaPorPersona(p, 'cp'));
 
-  const errores = Reserva.validar({tarifa:tar, licencia:$('#licencia').value, noches:n});
-  $('#aviso-fechas').hidden = !errores.includes('fechas');
+  const hoy = Reserva.hoyISO(new Date());
+  $('#s').min = Reserva.sumarDias($('#e').value, 1) || '';
+  const errores = Reserva.validar({tarifa:tar, licencia:$('#licencia').value, noches:n,
+                                   entrada:$('#e').value, hoy});
+  const errFechas = errores.includes('pasada') ? 'pasada' : errores.includes('fechas') ? 'fechas' : null;
+  $('#aviso-fechas').hidden = !errFechas;
+  $('#aviso-fechas').textContent = errFechas === 'pasada'
+    ? 'La entrada no puede ser anterior a hoy.'
+    : 'La salida tiene que ser posterior a la entrada.';
   $('#aviso-licencia').hidden = !errores.includes('licencia');
   $('.cta').disabled = errores.length > 0;
-  const malFechas = String(errores.includes('fechas'));
+  const malFechas = String(!!errFechas);
   $('#e').setAttribute('aria-invalid', malFechas);
   $('#s').setAttribute('aria-invalid', malFechas);
   $('#licencia').setAttribute('aria-invalid', String(errores.includes('licencia')));
-  if (errores.includes('fechas')){
+  if (errFechas){
     $('#v-cama').textContent = $('#v-com').textContent = $('#v-tot').textContent = '—';
     return;
   }
