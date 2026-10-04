@@ -115,3 +115,10 @@ test('eurCorto omite los céntimos solo si son cero', () => {
   assert.equal(R.eurCorto(1250), '1.250 €');
   assert.equal(R.eurCorto(0), '0 €');
 });
+
+test('ahorroFederado: diferencia entre tarifa general y federada para la misma reserva', () => {
+  // general 113 (50 + 63) · federado 87 (34 + 2×26,50)
+  assert.equal(R.ahorroFederado({ adultos: 2, menores: 0, pension: 'md', noches: 1 }), 26);
+  // 1 adulto + 1 menor, solo dormir, 2 noches: general (25+9)×2=68 · federado (17+6)×2=46
+  assert.equal(R.ahorroFederado({ adultos: 1, menores: 1, pension: '0', noches: 2 }), 22);
+});

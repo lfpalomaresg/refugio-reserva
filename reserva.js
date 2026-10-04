@@ -22,6 +22,11 @@
     return { cama, comidas, total: cama + comidas };
   }
 
+  // Cuánto menos paga un federado que un cliente general por la misma reserva.
+  function ahorroFederado(reserva) {
+    return calcular({ ...reserva, tarifa: 'gen' }).total - calcular({ ...reserva, tarifa: 'fed' }).total;
+  }
+
   // 'YYYY-MM-DD' -> días desde epoch (UTC, inmune al cambio de hora), o null si no es una fecha válida.
   function diaISO(txt) {
     const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(txt || '');
@@ -103,7 +108,7 @@
     return DIAS[d.getUTCDay()] + ' ' + d.getUTCDate() + ' de ' + MESES[d.getUTCMonth()];
   }
 
-  const API = { PRECIOS, comidaPorPersona, calcular, contarNoches, eur, cuenta, validar, hoyISO, sumarDias, ajustarSalida, fechaLarga, eurCorto };
+  const API = { PRECIOS, comidaPorPersona, calcular, contarNoches, eur, cuenta, validar, hoyISO, sumarDias, ajustarSalida, fechaLarga, eurCorto, ahorroFederado };
   if (typeof module !== 'undefined' && module.exports) module.exports = API;
   else root.Reserva = API;
 })(this);

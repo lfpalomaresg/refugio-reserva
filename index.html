@@ -128,6 +128,8 @@ input[aria-invalid="true"]{border-color:var(--error)}
 }
 .lin{display:flex; justify-content:space-between; font-size:.9rem; color:var(--tinta-2)}
 .lin span:last-child{font-variant-numeric:tabular-nums}
+.lin.ahorro{color:var(--ok); font-weight:600}
+.lin[hidden]{display:none}
 .lin.suma{
   color:var(--tinta); font-weight:700; font-size:1.16rem; padding-top:9px;
   border-top:1px solid var(--linea); margin-top:4px;
@@ -264,6 +266,7 @@ input[aria-invalid="true"]{border-color:var(--error)}
       <div class="lin"><span id="l-cama">Alojamiento · 2 personas × 1 noche</span><span id="v-cama">50,00 €</span></div>
       <div class="lin" id="l-com-fila"><span id="l-com">Media pensión · 2 personas × 1 noche</span><span id="v-com">63,00 €</span></div>
       <div class="lin suma"><span>Total</span><span id="v-tot">113,00 €</span></div>
+      <div class="lin ahorro" id="l-ahorro-fila" hidden><span>Ahorro como federado (ya descontado)</span><span id="v-ahorro"></span></div>
       <p class="pago">Se paga en el refugio. Cancelación gratuita hasta 6 días antes (5 € de gestión).</p>
       <button class="cta" id="confirmar" type="button">Confirmar reserva</button>
       <div role="status">
@@ -342,6 +345,7 @@ function pinta(){
   $('#licencia').setAttribute('aria-invalid', String(errores.includes('licencia')));
   if (errFechas){
     $('#v-cama').textContent = $('#v-com').textContent = $('#v-tot').textContent = '—';
+    $('#l-ahorro-fila').hidden = true;
     return;
   }
 
@@ -355,6 +359,10 @@ function pinta(){
   $('#v-com').textContent = eur(r.comidas);
 
   $('#v-tot').textContent = eur(r.total);
+
+  const ahorro = Reserva.ahorroFederado({adultos:ad, menores:ni, pension:pen, noches:n});
+  $('#l-ahorro-fila').hidden = !(tar === 'fed' && ahorro > 0);
+  $('#v-ahorro').textContent = eur(ahorro);
 }
 
 // Maqueta: confirmar solo enseña el resumen. Nada sale del navegador.

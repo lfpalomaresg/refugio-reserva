@@ -185,3 +185,15 @@ test('los precios por noche de las tarifas salen de la tabla de precios, no del 
   assert.equal(p.$('#p-gen').textContent, '27 € / noche');
   p.cerrar();
 });
+
+test('con tarifa federada aparece la línea de ahorro; con general, no', async () => {
+  const p = await abrir();
+  assert.equal(p.$('#l-ahorro-fila').hidden, true);
+  p.marcar('input[name=tar][value=fed]');
+  assert.equal(p.$('#l-ahorro-fila').hidden, false);
+  assert.equal(p.$('#v-ahorro').textContent, '26,00 €');
+  assert.equal(p.$('#v-tot').textContent, '87,00 €');
+  p.marcar('input[name=tar][value=gen]');
+  assert.equal(p.$('#l-ahorro-fila').hidden, true);
+  p.cerrar();
+});
