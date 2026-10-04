@@ -282,3 +282,13 @@ test('si el cálculo falla, no queda un total viejo ni se puede confirmar', asyn
   assert.equal(p.$('#confirmar').disabled, false);
   p.cerrar();
 });
+
+test('change con valores intermedios en la entrada (como Chrome al teclear) no altera las noches', async () => {
+  const p = await abrir({ hoy: '2026-10-04' });
+  p.cambiar('#e', '2026-10-05');
+  p.cambiar('#s', '2026-10-08'); // 3 noches elegidas con la salida
+  p.cambiar('#e', '2026-10-01'); // Chrome: teclear "1" en el día ya es fecha válida y emite change
+  p.cambiar('#e', '2026-10-10'); // "10"
+  assert.equal(p.$('#s').value, '2026-10-13');
+  p.cerrar();
+});

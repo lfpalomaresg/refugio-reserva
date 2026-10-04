@@ -21,6 +21,10 @@ npm test
 (`http://refugio.test/`), sin red (todo lo externo se bloquea y se registra), con el reloj congelado
 y fallando ante cualquier error de consola inesperado.
 
+`test/chrome.test.js` abre la maqueta en Google Chrome real (`playwright-core`, `channel: 'chrome'`,
+sin descargar navegadores) para lo que jsdom no simula, como teclear en un `<input type=date>`.
+Si Chrome no está instalado, esos tests se saltan.
+
 ## Enlace con un escenario
 
 `index.html?e=2026-10-10&s=2026-10-12&ad=3&ni=1&tar=fed&pen=cp` abre con esas opciones. Solo se aceptan

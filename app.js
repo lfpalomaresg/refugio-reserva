@@ -123,8 +123,10 @@ document.querySelectorAll('input[name=tar], input[name=pen]').forEach(r => {
   if (url[r.name] === r.value) r.checked = true;
 });
 
-// Noches de la estancia "confirmada": solo se recalculan en 'change' (valor final), nunca en 'input',
-// que un date real emite con valores a medio teclear.
+// Noches a conservar al mover la entrada: las define la SALIDA que elige el usuario (o la URL / los
+// valores por defecto), nunca la entrada. Chrome emite 'input' y también 'change' con cada valor
+// intermedio que ya es una fecha válida mientras se teclea (teclear "10" en el día pasa por el 01),
+// así que recalcularlas al cambiar la entrada las contaminaría y la salida se desplazaría de más.
 function fijaNoches(){
   const n = Reserva.contarNoches($('#e').value, $('#s').value);
   if (n > 0) nochesPrevias = n;
@@ -132,7 +134,6 @@ function fijaNoches(){
 // Se registra antes que pinta para que el total ya salga con la salida desplazada.
 $('#e').addEventListener('change', () => {
   $('#s').value = Reserva.ajustarSalida($('#e').value, $('#s').value, nochesPrevias);
-  fijaNoches();
 });
 $('#s').addEventListener('change', fijaNoches);
 

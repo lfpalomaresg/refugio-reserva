@@ -1,5 +1,23 @@
 # Notas de sesión
 
+## 2026-10-04 (Mac, Claude Opus 5.5) — bug de tecleo de la fecha de entrada en Chrome
+
+**Hecho**
+- Reproducido en Chrome real (test con `playwright-core`, teclado de verdad): con entrada 05/10 y salida
+  08/10 (3 noches), teclear "10" en el día dejaba la salida en 17/10 (7 noches). Chrome emite `change`
+  con cada valor intermedio ya válido (el "1" da 01/10) y eso redefinía las noches a conservar.
+- Corrección en `app.js`: las noches a conservar solo las fija la salida (o la URL / valores por
+  defecto); cambiar la entrada ya no las recalcula. 2 tests en Chrome + 1 en jsdom, vistos en rojo con el
+  código anterior y en verde con la corrección.
+
+**Pendiente**
+- (Resuelto) La prueba manual del tecleo en Chrome que quedó abierta en la sesión anterior.
+- Safari no se ha probado (playwright-core con WebKit requiere descargar el navegador).
+
+**Decidido**
+- Cambio de comportamiento asumido: si el usuario adelanta la entrada manteniendo la salida y después la
+  retrasa más allá de la salida, se conservan las noches que eligió con la salida, no las intermedias.
+
 ## 2026-10-04 (Mac, Claude Opus 5.5) — 20 loops de automejora
 
 **Hecho**
@@ -18,8 +36,8 @@
 - Comprobado en Chromium real (servidor local): sin errores de CSP, fuentes OK, totales correctos.
 
 **Pendiente**
-- Probar a mano en un `<input type=date>` real (Chrome/Safari) tecleando la entrada: en Chrome puede
-  emitir `change` con valores intermedios válidos y desplazar la salida de más (revisor loop 9).
+- ~~Probar a mano en un `<input type=date>` real tecleando la entrada~~ → reproducido y corregido
+  (ver la entrada siguiente de esta misma fecha).
 - Opcional: alojar Montserrat en local (Google Fonts envía la IP del visitante a Google).
 - El repo sigue público mientras Fernando pueda abrir el enlace (ver ficha del proyecto).
 
